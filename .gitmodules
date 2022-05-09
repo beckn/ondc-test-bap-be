@@ -1,6 +1,3 @@
 [submodule "beckn-protocol-dtos"]
 	path = beckn-protocol-dtos
 	url = /Users/rajatkumar/Documents/GitHub/ondc-test-bap-be
-[submodule "beckn-bap-protocol"]
-	path = beckn-bap-protocol
-	url = /Users/rajatkumar/Documents/GitHub/ondc-test-bap-be
