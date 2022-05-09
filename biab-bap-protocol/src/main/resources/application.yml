@@ -1,0 +1,50 @@
+---
+server:
+  port: ${SERVER_PORT:9002}
+logging:
+  level:
+    org:
+      apache:
+        coyote:
+          http11: WARN
+
+spring:
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+    default-property-inclusion: non_null
+
+database:
+  mongo:
+    url: ${DATABASE_URL:mongodb://localhost:27017}
+    name: ${DATABASE_NAME:bap}
+
+registry_service:
+  url: ${REGISTRY_URL:https://pilot-gateway-1.beckn.nsdl.co.in/}
+  retry:
+    max_attempts: ${REGISTRY_RETRY_MAX_ATTEMPTS:3}
+    initial_interval_in_millis: ${REGISTRY_RETRY_INTERVAL:1000}
+    interval_multiplier: ${REGISTRY_RETRY_INTERVAL_MULTIPLIER:1.0}
+bpp_registry_service:
+  url: ${BPP_URL:https://pilot-gateway-1.beckn.nsdl.co.in/}
+
+context:
+  domain: ${BAP_DOMAIN:nic2004:52110}
+  city: ${BAP_CITY_CODE:std:080}
+  country: ${BAP_COUNTRY_CODE:IND}
+  bap_id: ${BAP_ID:box.beckn.org}
+  bap_uri: ${BAP_URL:http://localhost:9002/protocol/v1}
+  ttl_seconds: ${BAP_TTL:20}
+
+beckn:
+  security.enabled: ${BECKN_SECURITY_ENABLED:false}
+security:
+  self:
+    private_key: ${BAP_PRIVATE_KEY:some-key}
+    unique_key_id: ${BAP_KEY_ID:default-key}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          'configprops, env, health, loggers, metrics, mappings, httptrace'
