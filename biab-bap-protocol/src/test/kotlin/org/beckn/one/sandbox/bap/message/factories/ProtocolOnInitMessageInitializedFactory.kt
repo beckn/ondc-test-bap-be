@@ -14,7 +14,10 @@ object ProtocolOnInitMessageInitializedFactory {
       items = itemIds.map {
         ProtocolOnInitMessageInitializedItems(
           id = it,
-          quantity = ProtocolItemQuantityAllocated(count = 2)
+          quantity = ProtocolItemQuantityAllocated(count = 2),
+          ondcReturnWindow = null,
+          ondcStatutoryPackagedFood = null,
+          ondcStatutoryPackagedCommodities = null
         )
       },
       addOns = null,

@@ -9,7 +9,9 @@ data class ProtocolOnInitMessageInitialized @Default constructor(
   val billing: ProtocolBilling? = null,
   val fulfillment: ProtocolFulfillment? = null,
   val quote: ProtocolQuotation? = null,
-  val payment: ProtocolPayment? = null
+  val payment: ProtocolPayment? = null,
+  val ondcCancellation: ProtocolOndcOrderCancellation? = null,
+  val ondcLinkedOrders: List<ProtocolOndcLinkedOrders>? = null,
 )
 
 data class ProtocolOnInitMessageInitializedProviderLocation @Default constructor(
@@ -22,7 +24,16 @@ data class ProtocolOnInitMessageInitializedProvider @Default constructor(
 
 data class ProtocolOnInitMessageInitializedItems @Default constructor(
   val id: String? = null,
-  val quantity: ProtocolItemQuantityAllocated? = null
+  val quantity: ProtocolItemQuantityAllocated? = null,
+  val ondcReturnable: Boolean? = true,
+  val ondcCancellable: Boolean? = true,
+  val ondcSellerPickupReturn: Boolean? = true,
+  val ondcReturnWindow: String?,
+  val ondcTimeToShip: String? = null,
+  val ondcAvailableOnCod: Boolean? = true,
+  val ondcStatutoryPackagedCommodities: OndcStatutoryPackagedCommodities?,
+  val ondcStatutoryPackagedFood: OndcStatutoryPackagedFood?,
+
 )
 
 // TODO: Example of inline declaration

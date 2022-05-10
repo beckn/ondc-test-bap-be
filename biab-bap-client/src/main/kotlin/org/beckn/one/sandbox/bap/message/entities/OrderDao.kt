@@ -25,8 +25,8 @@ data class OrderDao @Default constructor(
   var transactionId: String? = null,
   var messageId: String? = null,
   var parentOrderId:String? = null,
-  @JsonProperty("./ondc-cancellation") val ondcCancellation: OndcOrderCancellationDao? = null,
-  @JsonProperty("./ondc-linked_orders") val ondcLinkedOrders: List<OndcLinkedOrdersDao>?= null,
+  val ondcCancellation: OndcOrderCancellationDao? = null,
+  val ondcLinkedOrders: List<OndcLinkedOrdersDao>?= null,
 ):BecknResponseDao
 
 
@@ -47,8 +47,16 @@ data class SelectMessageSelectedAddOnsDao @Default constructor(
 // TODO similar to OnInitMessageInitializedItems
 data class SelectMessageSelectedItemsDao @Default constructor(
   val id: String,
-  val quantity: ItemQuantityAllocatedDao
-)
+  val quantity: ItemQuantityAllocatedDao,
+  val ondcReturnable: Boolean? = true,
+  val ondcCancellable: Boolean? = true,
+  val ondcSellerPickupReturn: Boolean? = true,
+  val ondcReturnWindow: String? = null,
+  val ondcTimeToShip: String? = null,
+  val ondcAvailableOnCod: Boolean? = true,
+  val ondcStatutoryPackagedCommodities: OndcStatutoryPackagedCommoditiesDao? = null,
+  val ondcStatutoryPackagedFood: OndcStatutoryPackagedFoodDao? = null,
+  )
 
 data class SelectMessageSelectedOffersDao @Default constructor(
   val id: String

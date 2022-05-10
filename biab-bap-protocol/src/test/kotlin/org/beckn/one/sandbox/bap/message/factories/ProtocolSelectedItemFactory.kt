@@ -7,8 +7,10 @@ import java.math.BigDecimal
 object ProtocolSelectedItemFactory {
   fun create(itemId: String) = ProtocolSelectedItem(
     id = "Item_$itemId",
-    quantity = ProtocolItemQuantityAllocated(count = 1, measure = ProtocolScalar(BigDecimal.valueOf(100), "INR")
-    )
+    quantity = ProtocolItemQuantityAllocated(count = 1, measure = ProtocolScalar(BigDecimal.valueOf(100), "INR")),
+    ondcReturnWindow = null,
+    ondcStatutoryPackagedFood = null,
+    ondcStatutoryPackagedCommodities = null
   )
 
   fun createAsEntity(protocol: ProtocolSelectedItem) = SelectedItemDao(
@@ -44,7 +46,10 @@ object ProtocolOnSelectedItemFactory {
       selected = ProtocolItemQuantityAllocated(
         count = 1, measure = ProtocolScalar(BigDecimal.valueOf(100), "INR")
       )
-    )
+    ),
+    ondcReturnWindow = null,
+    ondcStatutoryPackagedFood = null,
+    ondcStatutoryPackagedCommodities = null
   )
 
   fun createAsEntity(protocol: ProtocolOnSelectedItem) = SelectedItemDao(

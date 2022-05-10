@@ -11,7 +11,9 @@ data class OnInitMessageInitializedDao @Default constructor(
   val billing: BillingDao? = null,
   val fulfillment: FulfillmentDao? = null,
   val quote: QuotationDao? = null,
-  val payment: PaymentDao? = null
+  val payment: PaymentDao? = null,
+  val ondcCancellation: OndcOrderCancellationDao? =  null,
+  val ondcLinkedOrders: List<OndcLinkedOrdersDao>? = null,
 )
 
 data class OnInitMessageInitializedProviderLocationDao @Default constructor(
@@ -24,7 +26,15 @@ data class OnInitMessageInitializedProviderDao @Default constructor(
 
 data class OnInitMessageInitializedItemsDao @Default constructor(
   val id: String? = null,
-  val quantity: ItemQuantityAllocatedDao? = null
+  val quantity: ItemQuantityAllocatedDao? = null,
+  val ondcReturnable: Boolean? = true,
+  val ondcCancellable: Boolean? = true,
+  val ondcSellerPickupReturn: Boolean? = true,
+  val ondcReturnWindow: String?= null,
+  val ondcTimeToShip: String? = null,
+  val ondcAvailableOnCod: Boolean? = true,
+  val ondcStatutoryPackagedCommodities: OndcStatutoryPackagedCommoditiesDao? = null,
+  val ondcStatutoryPackagedFood: OndcStatutoryPackagedFoodDao? = null,
 )
 
 // TODO: Example of inline declaration

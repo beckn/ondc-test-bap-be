@@ -16,8 +16,8 @@ data class OrderDao @Default constructor(
   val state: String? = null,
   val createdAt: java.time.OffsetDateTime? = null,
   val updatedAt: java.time.OffsetDateTime? = null,
-  @JsonProperty("./ondc-cancellation") val ondcCancellation: OndcOrderCancellationDao? =  null,
-  @JsonProperty("./ondc-linked_orders") val ondcLinkedOrders: List<OndcLinkedOrdersDao>? = null,
+  val ondcCancellation: OndcOrderCancellationDao? =  null,
+  val ondcLinkedOrders: List<OndcLinkedOrdersDao>? = null,
 )
 
 

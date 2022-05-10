@@ -2,13 +2,16 @@ package org.beckn.one.sandbox.bap.message.entities
 
 import org.beckn.protocol.schemas.Default
 
+
 data class OnSelectMessageSelectedDao @Default constructor(
   val provider: ProviderDao? = null,
   val providerLocation: LocationDao? = null,
   val items: List<SelectedItemDao>? = null,
   val addOns: List<AddOnDao>? = null,
   val offers: List<OfferDao>? = null,
-  val quote: QuotationDao? = null
+  val quote: QuotationDao? = null,
+  val ondcCancellation: OndcOrderCancellationDao? =  null,
+  val ondcLinkedOrders: List<OndcLinkedOrdersDao>? = null,
 )
 
 data class SelectedItemDao @Default constructor(
@@ -21,6 +24,14 @@ data class SelectedItemDao @Default constructor(
   val time: TimeDao? = null,
   val tags: Map<String, String>? = null,
   val quantity: ItemQuantityDao,
+  val ondcReturnable: Boolean? = true,
+  val ondcCancellable: Boolean? = true,
+  val ondcSellerPickupReturn: Boolean? = true,
+  val ondcReturnWindow: String?= null,
+  val ondcTimeToShip: String? = null,
+  val ondcAvailableOnCod: Boolean? = true,
+  val ondcStatutoryPackagedCommodities: OndcStatutoryPackagedCommoditiesDao? = null,
+  val ondcStatutoryPackagedFood: OndcStatutoryPackagedFoodDao? = null,
 )
 
 data class ItemQuantityDao @Default constructor(

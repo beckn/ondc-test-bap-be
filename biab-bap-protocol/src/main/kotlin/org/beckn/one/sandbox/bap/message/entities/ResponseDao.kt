@@ -1,9 +1,7 @@
 package org.beckn.one.sandbox.bap.message.entities
 
 import org.beckn.protocol.schemas.Default
-import org.beckn.protocol.schemas.ProtocolDescriptor
 import java.time.LocalDateTime
-
 
 interface BecknResponseDao {
   val context: ContextDao

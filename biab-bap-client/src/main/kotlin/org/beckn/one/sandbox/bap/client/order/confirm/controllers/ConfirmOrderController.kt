@@ -100,7 +100,9 @@ class ConfirmOrderController @Autowired constructor(
                     userId = SecurityUtil.getSecuredUserDetail()?.uid,
                     messageId = context?.messageId,
                     transactionId = null,
-                    parentOrderId =  parentOrderId
+                    parentOrderId =  parentOrderId,
+                    ondcCancellation = null,
+                    ondcLinkedOrders = null
                   )
                 ).fold(
                   {

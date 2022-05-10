@@ -15,8 +15,8 @@ data class ProtocolOrder @Default constructor(
   val state: String? = null,
   val createdAt: java.time.OffsetDateTime? = null,
   val updatedAt: java.time.OffsetDateTime? = null,
-  @JsonProperty("./ondc-cancellation") val ondcCancellation: ProtocolOndcOrderCancellation? = null,
-  @JsonProperty("./ondc-linked_orders") val ondcLinkedOrders: List<ProtocolOndcLinkedOrders>? = null,
+  val ondcCancellation: ProtocolOndcOrderCancellation? = null,
+  val ondcLinkedOrders: List<ProtocolOndcLinkedOrders>? = null,
 
 )
 
@@ -38,7 +38,15 @@ data class ProtocolSelectMessageSelectedAddOns @Default constructor(
 // TODO similar to OnInitMessageInitializedItems
 data class ProtocolSelectMessageSelectedItems @Default constructor(
   val id: String,
-  val quantity: ProtocolItemQuantityAllocated
+  val quantity: ProtocolItemQuantityAllocated,
+  val ondcReturnable: Boolean? = true,
+  val ondcCancellable: Boolean? = true,
+  val ondcSellerPickupReturn: Boolean? = true,
+  val ondcReturnWindow: String?,
+  val ondcTimeToShip: String? = null,
+  val ondcAvailableOnCod: Boolean? = true,
+  val ondcStatutoryPackagedCommodities: OndcStatutoryPackagedCommodities?,
+  val ondcStatutoryPackagedFood: OndcStatutoryPackagedFood?,
 )
 
 data class ProtocolSelectMessageSelectedOffers @Default constructor(

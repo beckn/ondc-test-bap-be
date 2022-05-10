@@ -15,7 +15,10 @@ object ProtocolOrderFactory {
       items = itemIds.mapNotNull {
         ProtocolSelectMessageSelectedItems(
           id = it,
-          quantity = ProtocolItemQuantityAllocated(count = 2)
+          quantity = ProtocolItemQuantityAllocated(count = 2),
+          ondcReturnWindow = null,
+          ondcStatutoryPackagedFood = null,
+          ondcStatutoryPackagedCommodities = null
         )
       },
       addOns = listOf(),

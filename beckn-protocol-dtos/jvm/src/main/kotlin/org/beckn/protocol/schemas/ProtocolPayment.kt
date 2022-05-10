@@ -10,18 +10,18 @@ data class ProtocolPayment @Default constructor(
   val status: Status? = null,
   val time: ProtocolTime? = null,
   val collectedBy: CollectedBy? = null,
-  @JsonProperty("./ondc-collected_by_status") val collectedByStatus: CollectedByStatus? = null,
-  @JsonProperty("./ondc-buyer_app_finder_fee_type") val buyerAppFinderFeeType: BuyerAppFinderFeeType? = null,
-  @JsonProperty("./ondc-buyer_app_finder_fee_amount") val buyerAppFinderFeeAmount: String? = null,
-  @JsonProperty("./ondc-withholding_amount") val withHoldingAmount: String? = null,
-  @JsonProperty("./ondc-withholding_amount_status") val withHoldingAmountStatus: CollectedByStatus? = null,
-  @JsonProperty("./ondc-return_window") val returnWindow: String? = null,
-  @JsonProperty("./ondc-return_window_status") val returnWindowStatus: CollectedByStatus? = null,
-  @JsonProperty("./ondc-settlement_basis") val settlementBasis: String? = null,
-  @JsonProperty("./ondc-settlement_basis_status") val settlementBasisStatus: CollectedByStatus? = null,
-  @JsonProperty("./ondc-settlement_window") val settlementWindow: String? = null,
-  @JsonProperty("./ondc-settlement_window_status") val settlementWindowStatus: CollectedByStatus? = null,
-  @JsonProperty("./ondc-settlement_details") val settlementDetails: List<SettlementDetails>? = null,
+  val ondcCollectedByStatus: CollectedByStatus? = null,
+  val ondcBuyerAppFinderFeeType: BuyerAppFinderFeeType? = null,
+  val ondcBuyerAppFinderFeeAmount: String? = null,
+  val ondcWithHoldingAmount: String? = null,
+  val ondcWithHoldingAmountStatus: CollectedByStatus? = null,
+  val ondcReturnWindow: String? = null,
+  val ondcReturnWindowStatus: CollectedByStatus? = null,
+  val ondcSettlementBasis: String? = null,
+  val ondcSettlementBasisStatus: CollectedByStatus? = null,
+  val ondcSettlementWindow: String? = null,
+  val ondcSettlementWindowStatus: CollectedByStatus? = null,
+  val ondcSettlementDetails: List<SettlementDetails>? = null,
 
 ) {
 
@@ -89,15 +89,15 @@ data class PaymentParams @Default constructor(
 )
 
 data class SettlementDetails @Default constructor(
-  @JsonProperty("settlement_counterparty") val settlementCounterParty: SettlementCounterParty? = null,
-  @JsonProperty("settlement_phase") val settlementPhase: SettlementPhase? = null,
-  @JsonProperty("settlement_type") val settlementType: SettlementType? = null,
-  @JsonProperty("settlement_bank_account_no") val settlementBankAccountNo: String? = null,
-  @JsonProperty("settlement_ifsc_code") val settlementIfscCode: String? = null,
-  @JsonProperty("upi_address") val upiAddress: String? = null,
-  @JsonProperty("settlement_status") val settlementStatus: SettlementStatus? = null,
-  @JsonProperty("settlement_reference") val settlementReference: String? = null,
-  @JsonProperty("settlement_timestamp") val settlementTimestamp: java.time.OffsetDateTime? = null,
+  val settlementCounterParty: SettlementCounterParty? = null,
+  val settlementPhase: SettlementPhase? = null,
+  val settlementType: SettlementType? = null,
+  val settlementBankAccountNo: String? = null,
+  val settlementIfscCode: String? = null,
+  val upiAddress: String? = null,
+  val settlementStatus: SettlementStatus? = null,
+  val settlementReference: String? = null,
+  val settlementTimestamp: java.time.OffsetDateTime? = null,
 ) {
 
   enum class SettlementCounterParty(val value: String) {
