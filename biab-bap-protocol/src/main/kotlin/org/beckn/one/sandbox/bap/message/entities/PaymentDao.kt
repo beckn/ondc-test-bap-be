@@ -2,8 +2,6 @@ package org.beckn.one.sandbox.bap.message.entities
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.beckn.protocol.schemas.Default
-import org.beckn.protocol.schemas.ProtocolPayment
-import org.beckn.protocol.schemas.SettlementDetails
 
 data class PaymentDao  @Default constructor(
   val uri: java.net.URI? = null,
