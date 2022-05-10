@@ -18,11 +18,11 @@ data class ItemDao @Default constructor(
   @JsonProperty("./ondc-returnable") val ondcReturnable: Boolean? = true,
   @JsonProperty("./ondc-cancellable") val ondcCancellable: Boolean? = true,
   @JsonProperty("./ondc-seller_pickup_return") val ondcSellerPickupReturn: Boolean? = true,
-  @JsonProperty("./ondc-return_window") val ondcReturnWindow: String?,
+  @JsonProperty("./ondc-return_window") val ondcReturnWindow: String?= null,
   @JsonProperty("./ondc-time_to_ship") val ondcTimeToShip: String? = null,
   @JsonProperty("./ondc-available_on_cod") val ondcAvailableOnCod: Boolean? = true,
-  @JsonProperty("./ondc-statutory_reqs_packaged_commodities") val ondcStatutoryPackagedCommodities: OndcStatutoryPackagedCommoditiesDao?,
-  @JsonProperty("./ondc-statutory_reqs_prepackaged_food") val ondcStatutoryPackagedFood: OndcStatutoryPackagedFoodDao?,
+  @JsonProperty("./ondc-statutory_reqs_packaged_commodities") val ondcStatutoryPackagedCommodities: OndcStatutoryPackagedCommoditiesDao? = null,
+  @JsonProperty("./ondc-statutory_reqs_prepackaged_food") val ondcStatutoryPackagedFood: OndcStatutoryPackagedFoodDao? = null,
 )
 
 data class OndcStatutoryPackagedCommoditiesDao @Default constructor(

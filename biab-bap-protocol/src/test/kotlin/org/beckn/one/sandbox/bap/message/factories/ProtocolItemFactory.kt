@@ -14,7 +14,16 @@ object ProtocolItemFactory {
     matched = true,
     related = true,
     recommended = true,
-    time = ProtocolTimeFactory.fixedRange("range")
+    time = ProtocolTimeFactory.fixedRange("range"),
+    ondcReturnWindow = "",
+    ondcCancellable = true,
+    ondcReturnable = true,
+    ondcAvailableOnCod = true,
+    ondcSellerPickupReturn = true,
+    ondcStatutoryPackagedCommodities = null,
+    ondcStatutoryPackagedFood = null,
+    ondcTimeToShip = "",
+    locationId = ""
   )
 
   fun createAsEntity(protocol: ProtocolItem) = ItemDao(
