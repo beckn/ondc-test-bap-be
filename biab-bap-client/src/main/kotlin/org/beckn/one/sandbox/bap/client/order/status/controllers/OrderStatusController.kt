@@ -1,14 +1,12 @@
 package org.beckn.one.sandbox.bap.client.order.status.controllers
 
 import org.beckn.one.sandbox.bap.client.order.status.services.OrderStatusService
-import org.beckn.one.sandbox.bap.client.shared.dtos.GetQuoteRequestDto
 import org.beckn.one.sandbox.bap.client.shared.dtos.OrderStatusDto
 import org.beckn.one.sandbox.bap.client.shared.errors.bpp.BppError
 import org.beckn.one.sandbox.bap.errors.HttpError
 import org.beckn.one.sandbox.bap.factories.ContextFactory
 import org.beckn.protocol.schemas.ProtocolAckResponse
 import org.beckn.protocol.schemas.ProtocolContext
-import org.beckn.protocol.schemas.ProtocolError
 import org.beckn.protocol.schemas.ResponseMessage
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

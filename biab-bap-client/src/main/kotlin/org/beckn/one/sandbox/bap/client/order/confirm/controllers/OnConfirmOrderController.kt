@@ -8,9 +8,11 @@ import org.beckn.one.sandbox.bap.client.shared.dtos.ClientConfirmResponse
 import org.beckn.one.sandbox.bap.client.shared.dtos.ClientResponse
 import org.beckn.one.sandbox.bap.client.shared.errors.bpp.BppError
 import org.beckn.one.sandbox.bap.client.shared.services.GenericOnPollService
+import org.beckn.one.sandbox.bap.client.shared.services.LoggingService
 import org.beckn.one.sandbox.bap.errors.HttpError
 import org.beckn.one.sandbox.bap.errors.database.DatabaseError
 import org.beckn.one.sandbox.bap.factories.ContextFactory
+import org.beckn.one.sandbox.bap.factories.LoggingFactory
 import org.beckn.one.sandbox.bap.message.entities.OrderDao
 import org.beckn.one.sandbox.bap.message.mappers.OnOrderProtocolToEntityOrder
 import org.beckn.protocol.schemas.ProtocolContext
@@ -30,8 +32,10 @@ class OnConfirmOrderController @Autowired constructor(
   val contextFactory: ContextFactory,
   val protocolClient: ProtocolClient,
   val mapping: OnOrderProtocolToEntityOrder,
-  val onConfirmOrderService: OnConfirmOrderService
-) : AbstractOnPollController<ProtocolOnConfirm, ClientConfirmResponse>(onPollService, contextFactory) {
+  val onConfirmOrderService: OnConfirmOrderService,
+  loggingFactory: LoggingFactory,
+  loggingService: LoggingService,
+) : AbstractOnPollController<ProtocolOnConfirm, ClientConfirmResponse>(onPollService, contextFactory, loggingFactory, loggingService) {
   val log: Logger = LoggerFactory.getLogger(this::class.java)
 
   @RequestMapping("/client/v1/on_confirm_order")

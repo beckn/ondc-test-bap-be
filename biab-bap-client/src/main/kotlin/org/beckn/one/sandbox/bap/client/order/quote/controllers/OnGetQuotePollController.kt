@@ -6,8 +6,10 @@ import org.beckn.one.sandbox.bap.client.shared.dtos.ClientQuoteResponse
 import org.beckn.one.sandbox.bap.client.shared.dtos.ClientResponse
 import org.beckn.one.sandbox.bap.client.shared.errors.bpp.BppError
 import org.beckn.one.sandbox.bap.client.shared.services.GenericOnPollService
+import org.beckn.one.sandbox.bap.client.shared.services.LoggingService
 import org.beckn.one.sandbox.bap.errors.HttpError
 import org.beckn.one.sandbox.bap.factories.ContextFactory
+import org.beckn.one.sandbox.bap.factories.LoggingFactory
 
 import org.beckn.protocol.schemas.ProtocolOnSelect
 
@@ -25,8 +27,10 @@ import org.springframework.web.bind.annotation.RestController
 class OnGetQuotePollController @Autowired constructor(
   val onPollService: GenericOnPollService<ProtocolOnSelect, ClientQuoteResponse>,
   val contextFactory: ContextFactory,
-  private val protocolClient: ProtocolClient
-) : AbstractOnPollController<ProtocolOnSelect, ClientQuoteResponse>(onPollService, contextFactory) {
+  private val protocolClient: ProtocolClient,
+  loggingFactory: LoggingFactory,
+  loggingService: LoggingService,
+) : AbstractOnPollController<ProtocolOnSelect, ClientQuoteResponse>(onPollService, contextFactory, loggingFactory, loggingService) {
   val log: Logger = LoggerFactory.getLogger(this::class.java)
 
   @RequestMapping("/client/v1/on_get_quote")

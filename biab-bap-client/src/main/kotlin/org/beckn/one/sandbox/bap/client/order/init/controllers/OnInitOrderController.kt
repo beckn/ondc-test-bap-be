@@ -7,8 +7,10 @@ import org.beckn.one.sandbox.bap.client.shared.dtos.ClientQuoteResponse
 import org.beckn.one.sandbox.bap.client.shared.dtos.ClientResponse
 import org.beckn.one.sandbox.bap.client.shared.errors.bpp.BppError
 import org.beckn.one.sandbox.bap.client.shared.services.GenericOnPollService
+import org.beckn.one.sandbox.bap.client.shared.services.LoggingService
 import org.beckn.one.sandbox.bap.errors.HttpError
 import org.beckn.one.sandbox.bap.factories.ContextFactory
+import org.beckn.one.sandbox.bap.factories.LoggingFactory
 import org.beckn.protocol.schemas.ProtocolOnInit
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -23,8 +25,10 @@ import org.springframework.web.bind.annotation.RestController
 class OnInitOrderController @Autowired constructor(
   val onPollService: GenericOnPollService<ProtocolOnInit, ClientInitResponse>,
   val contextFactory: ContextFactory,
-  val protocolClient: ProtocolClient
-) : AbstractOnPollController<ProtocolOnInit, ClientInitResponse>(onPollService, contextFactory) {
+  val protocolClient: ProtocolClient,
+  loggingFactory: LoggingFactory,
+  loggingService: LoggingService,
+) : AbstractOnPollController<ProtocolOnInit, ClientInitResponse>(onPollService, contextFactory, loggingFactory, loggingService) {
   val log: Logger = LoggerFactory.getLogger(this::class.java)
 
   @RequestMapping("/client/v1/on_initialize_order")

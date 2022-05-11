@@ -68,7 +68,7 @@ context:
   domain: ${BAP_DOMAIN:nic2004:52110}
   city: ${BAP_CITY_CODE:std:080}
   country: ${BAP_COUNTRY_CODE:IND}
-  bap_id: ${BAP_ID:box.beckn.org}
+  bap_id: ${BAP_ID:testbap.becknprotocol.io}
   bap_uri: ${BAP_URL:http://localhost:9002/protocol/v1}
   ttl_seconds: ${BAP_TTL:20}
 
@@ -139,3 +139,5 @@ management:
       exposure:
         include:
           'configprops, env, health, loggers, metrics, mappings, httptrace'
+logging_service:
+  url: ${LOGGING_URL:https://logging.becknprotocol.io/}

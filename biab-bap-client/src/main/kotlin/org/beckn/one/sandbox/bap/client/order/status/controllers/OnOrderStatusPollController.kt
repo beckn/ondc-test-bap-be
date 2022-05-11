@@ -9,8 +9,10 @@ import org.beckn.one.sandbox.bap.client.shared.dtos.ClientOrderStatusResponse
 import org.beckn.one.sandbox.bap.client.shared.dtos.ClientResponse
 import org.beckn.one.sandbox.bap.client.shared.errors.bpp.BppError
 import org.beckn.one.sandbox.bap.client.shared.services.GenericOnPollService
+import org.beckn.one.sandbox.bap.client.shared.services.LoggingService
 import org.beckn.one.sandbox.bap.errors.HttpError
 import org.beckn.one.sandbox.bap.factories.ContextFactory
+import org.beckn.one.sandbox.bap.factories.LoggingFactory
 import org.beckn.one.sandbox.bap.message.entities.OrderDao
 import org.beckn.one.sandbox.bap.message.mappers.OnOrderProtocolToEntityOrder
 import org.beckn.protocol.schemas.ProtocolContext
@@ -28,8 +30,10 @@ class OnOrderStatusPollController(
   val contextFactory: ContextFactory,
   val mapping: OnOrderProtocolToEntityOrder,
   val protocolClient: ProtocolClient,
-  val onOrderStatusService: OnOrderStatusService
-) : AbstractOnPollController<ProtocolOnOrderStatus, ClientOrderStatusResponse>(onPollService, contextFactory) {
+  val onOrderStatusService: OnOrderStatusService,
+  loggingFactory: LoggingFactory,
+  loggingService: LoggingService,
+) : AbstractOnPollController<ProtocolOnOrderStatus, ClientOrderStatusResponse>(onPollService, contextFactory, loggingFactory, loggingService) {
 
   @RequestMapping("/client/v1/on_order_status")
   @ResponseBody
