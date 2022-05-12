@@ -2,11 +2,14 @@ package org.beckn.one.sandbox.bap.client.order.init.services
 
 import arrow.core.Either
 import arrow.core.flatMap
+import org.beckn.one.sandbox.bap.client.external.registry.SubscriberDto
 import org.beckn.one.sandbox.bap.client.shared.dtos.OrderDto
 import org.beckn.one.sandbox.bap.client.shared.dtos.OrderItemDto
 import org.beckn.one.sandbox.bap.client.shared.errors.CartError
+import org.beckn.one.sandbox.bap.client.shared.services.LoggingService
 import org.beckn.one.sandbox.bap.client.shared.services.RegistryService
 import org.beckn.one.sandbox.bap.errors.HttpError
+import org.beckn.one.sandbox.bap.factories.LoggingFactory
 import org.beckn.protocol.schemas.ProtocolAckResponse
 import org.beckn.protocol.schemas.ProtocolContext
 import org.slf4j.Logger
@@ -18,7 +21,9 @@ import org.springframework.stereotype.Service
 class InitOrderService @Autowired constructor(
   private val bppInitService: BppInitService,
   private val registryService: RegistryService,
-  private val log: Logger = LoggerFactory.getLogger(InitOrderService::class.java)
+  private val log: Logger = LoggerFactory.getLogger(InitOrderService::class.java),
+  private val loggingService: LoggingService,
+  private val loggingFactory: LoggingFactory
 ) {
   fun initOrder(
     context: ProtocolContext,
@@ -42,6 +47,13 @@ class InitOrderService @Autowired constructor(
 
     return registryService.lookupBppById(order.items.first().bppId)
       .flatMap {
+        val loggerRequest = loggingFactory.create(messageId = context.messageId,
+          transactionId = context.transactionId, contextTimestamp = context.timestamp.toString(),
+          action = context.action, bppId = context.bppId, subscriberId= it.first().subscriber_id,
+          subscriberType = SubscriberDto.Type.LREG.name
+        )
+        loggingService.postLog(loggerRequest)
+
         bppInitService.init(
           context,
           bppUri = it.first().subscriber_url,

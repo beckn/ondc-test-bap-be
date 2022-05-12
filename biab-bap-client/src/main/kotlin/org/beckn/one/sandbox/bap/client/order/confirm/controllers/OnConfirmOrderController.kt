@@ -45,7 +45,7 @@ class OnConfirmOrderController @Autowired constructor(
   ): ResponseEntity<out ClientResponse> = onPoll(
     messageId,
     protocolClient.getConfirmResponsesCall(messageId),
-    ProtocolContext.Action.ON_SEARCH
+    ProtocolContext.Action.ON_CONFIRM
   )
 
   @RequestMapping("/client/v2/on_confirm_order")

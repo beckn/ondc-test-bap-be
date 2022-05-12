@@ -33,6 +33,6 @@ class OnCancelOrderController @Autowired constructor(
   ): ResponseEntity<out ClientResponse> = onPoll(
       messageId,
       protocolClient.getCancelResponsesCall(messageId),
-      ProtocolContext.Action.ON_SEARCH
+      ProtocolContext.Action.ON_CANCEL
   )
 }

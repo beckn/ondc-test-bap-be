@@ -36,7 +36,7 @@ class OnSupportController @Autowired constructor(
   ): ResponseEntity<out ClientResponse> = onPoll(
       messageId,
       protocolClient.getSupportResponseCall(messageId),
-      ProtocolContext.Action.ON_SEARCH
+      ProtocolContext.Action.ON_SUPPORT
   )
 
   @RequestMapping("/client/v2/on_support")
@@ -53,7 +53,7 @@ class OnSupportController @Autowired constructor(
         val bapResult = onPoll(
             messageId,
             protocolClient.getSupportResponseCall(messageId),
-            ProtocolContext.Action.ON_SEARCH
+            ProtocolContext.Action.ON_SUPPORT
         )
         when (bapResult.statusCode.value()) {
           200 -> {

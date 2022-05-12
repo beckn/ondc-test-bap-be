@@ -38,7 +38,7 @@ class OnInitOrderController @Autowired constructor(
   ): ResponseEntity<out ClientResponse> = onPoll(
     messageId,
     protocolClient.getInitResponsesCall(messageId),
-    ProtocolContext.Action.ON_SEARCH
+    ProtocolContext.Action.ON_INIT
   )
 
 

@@ -32,6 +32,6 @@ class OnGetPolicyPollController @Autowired constructor(
   ): ResponseEntity<out ClientResponse> = onPoll(
       messageId,
       protocolClient.getOnCancellationReasonsResponsesCall(messageId),
-      ProtocolContext.Action.ON_SEARCH
+      ProtocolContext.Action.ON_CANCEL
   )
 }

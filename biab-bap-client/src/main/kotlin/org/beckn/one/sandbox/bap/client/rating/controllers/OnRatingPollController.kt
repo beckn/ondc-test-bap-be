@@ -28,5 +28,5 @@ class OnRatingPollController(
   @RequestMapping("/client/v1/on_rating")
   @ResponseBody
   fun onRating(@RequestParam messageId: String): ResponseEntity<out ClientResponse> =
-    onPoll(messageId, protocolClient.getRatingResponsesCall(messageId), ProtocolContext.Action.ON_SEARCH)
+    onPoll(messageId, protocolClient.getRatingResponsesCall(messageId), ProtocolContext.Action.ON_RATING)
 }

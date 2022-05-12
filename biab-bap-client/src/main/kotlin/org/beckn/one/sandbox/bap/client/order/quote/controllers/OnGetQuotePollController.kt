@@ -10,6 +10,7 @@ import org.beckn.one.sandbox.bap.client.shared.services.LoggingService
 import org.beckn.one.sandbox.bap.errors.HttpError
 import org.beckn.one.sandbox.bap.factories.ContextFactory
 import org.beckn.one.sandbox.bap.factories.LoggingFactory
+import org.beckn.protocol.schemas.ProtocolAckResponse
 import org.beckn.protocol.schemas.ProtocolContext
 
 import org.beckn.protocol.schemas.ProtocolOnSelect
@@ -28,15 +29,15 @@ class OnGetQuotePollController @Autowired constructor(
   val onPollService: GenericOnPollService<ProtocolOnSelect, ClientQuoteResponse>,
   val contextFactory: ContextFactory,
   private val protocolClient: ProtocolClient,
-  loggingFactory: LoggingFactory,
-  loggingService: LoggingService,
+  private val loggingFactory: LoggingFactory,
+  private val loggingService: LoggingService,
 ) : AbstractOnPollController<ProtocolOnSelect, ClientQuoteResponse>(onPollService, contextFactory, loggingFactory, loggingService) {
   val log: Logger = LoggerFactory.getLogger(this::class.java)
 
   @RequestMapping("/client/v1/on_get_quote")
   @ResponseBody
   fun onGetQuoteV1(@RequestParam messageId: String): ResponseEntity<out ClientResponse> =
-    onPoll(messageId, protocolClient.getSelectResponsesCall(messageId), ProtocolContext.Action.ON_SEARCH)
+    onPoll(messageId, protocolClient.getSelectResponsesCall(messageId), ProtocolContext.Action.ON_SELECT)
 
   @RequestMapping("/client/v2/on_get_quote")
   @ResponseBody
@@ -46,18 +47,22 @@ class OnGetQuotePollController @Autowired constructor(
       val messageIdArray = messageIds.split(",")
       var okResponseQuotes: MutableList<ClientQuoteResponse> = ArrayList()
        for (msgId in messageIdArray) {
+         val context = contextFactory.create(messageId = msgId)
+         setLogging(context, null)
           onPollService.onPoll(
-            contextFactory.create(messageId = msgId),
+            context ,
             protocolClient.getSelectResponsesCall(msgId)
           ).fold(
             {
+              setLogging(context, it)
               okResponseQuotes.add(
                 ClientQuoteResponse(
-                  context = contextFactory.create(messageId = msgId),
+                  context = context,
                   error = it.error(), message = null
                 )
               )
             }, {
+              setLogging(context, null)
               okResponseQuotes.add(it)
             }
           )
@@ -65,8 +70,22 @@ class OnGetQuotePollController @Autowired constructor(
         log.info("`Initiated and returning on quotes polling result`. Message: {}", okResponseQuotes)
         return ResponseEntity.ok(okResponseQuotes)
     } else {
+      val loggerRequest = loggingFactory.create(
+        action = ProtocolContext.Action.ON_SELECT, errorCode = BppError.BadRequestError.badRequestError.code,
+        errorMessage = BppError.BadRequestError.badRequestError.message
+      )
+      loggingService.postLog(loggerRequest)
       return mapToErrorResponse(BppError.BadRequestError)
     }
+  }
+
+  private fun setLogging(context: ProtocolContext, error: HttpError?) {
+    val loggerRequest = loggingFactory.create(messageId = context.messageId,
+      transactionId = context.transactionId, contextTimestamp = context.timestamp.toString(),
+      action = context.action, bppId = context.bppId, errorCode = error?.error()?.code,
+      errorMessage = error?.error()?.message
+    )
+    loggingService.postLog(loggerRequest)
   }
 
   private fun mapToErrorResponse(it: HttpError) = ResponseEntity
