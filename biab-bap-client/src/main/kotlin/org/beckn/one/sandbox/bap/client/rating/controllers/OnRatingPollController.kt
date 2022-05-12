@@ -8,6 +8,7 @@ import org.beckn.one.sandbox.bap.client.shared.services.GenericOnPollService
 import org.beckn.one.sandbox.bap.client.shared.services.LoggingService
 import org.beckn.one.sandbox.bap.factories.ContextFactory
 import org.beckn.one.sandbox.bap.factories.LoggingFactory
+import org.beckn.protocol.schemas.ProtocolContext
 import org.beckn.protocol.schemas.ProtocolOnRating
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RequestMapping
@@ -27,5 +28,5 @@ class OnRatingPollController(
   @RequestMapping("/client/v1/on_rating")
   @ResponseBody
   fun onRating(@RequestParam messageId: String): ResponseEntity<out ClientResponse> =
-    onPoll(messageId, protocolClient.getRatingResponsesCall(messageId))
+    onPoll(messageId, protocolClient.getRatingResponsesCall(messageId), ProtocolContext.Action.ON_SEARCH)
 }

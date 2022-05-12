@@ -8,6 +8,7 @@ import org.beckn.one.sandbox.bap.client.shared.services.GenericOnPollService
 import org.beckn.one.sandbox.bap.client.shared.services.LoggingService
 import org.beckn.one.sandbox.bap.factories.ContextFactory
 import org.beckn.one.sandbox.bap.factories.LoggingFactory
+import org.beckn.protocol.schemas.ProtocolContext
 import org.beckn.protocol.schemas.ProtocolOnSearch
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
@@ -29,5 +30,5 @@ class OnSearchPollController @Autowired constructor(
   @ResponseBody
   fun onSearchV1(
     @RequestParam messageId: String
-  ): ResponseEntity<out ClientResponse> = onPoll(messageId, protocolClient.getSearchResponsesCall(messageId))
+  ): ResponseEntity<out ClientResponse> = onPoll(messageId, protocolClient.getSearchResponsesCall(messageId), ProtocolContext.Action.ON_SEARCH)
 }

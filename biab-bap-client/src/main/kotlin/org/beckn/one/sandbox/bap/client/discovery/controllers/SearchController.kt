@@ -7,6 +7,7 @@ import org.beckn.one.sandbox.bap.client.shared.services.LoggingService
 import org.beckn.one.sandbox.bap.factories.ContextFactory
 import org.beckn.one.sandbox.bap.factories.LoggingFactory
 import org.beckn.protocol.schemas.ProtocolAckResponse
+import org.beckn.protocol.schemas.ProtocolContext
 import org.beckn.protocol.schemas.ResponseMessage
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -30,8 +31,9 @@ class SearchController @Autowired constructor(
   @ResponseBody
   fun searchV1(@RequestBody request: SearchRequestDto): ResponseEntity<ProtocolAckResponse> {
     val protocolContext =
-      contextFactory.create(transactionId = request.context.transactionId, bppId = request.context.bppId)
-    val loggerRequest = loggingFactory.create(messageId = protocolContext.messageId, transactionId = protocolContext.transactionId, contextTimestamp = protocolContext.timestamp.toString(),
+      contextFactory.create(transactionId = request.context.transactionId, bppId = request.context.bppId, action = ProtocolContext.Action.SEARCH)
+    val loggerRequest = loggingFactory.create(messageId = protocolContext.messageId,
+      transactionId = protocolContext.transactionId, contextTimestamp = protocolContext.timestamp.toString(),
       action = protocolContext.action, bppId = protocolContext.bppId
     )
     loggingService.postLog(loggerRequest)

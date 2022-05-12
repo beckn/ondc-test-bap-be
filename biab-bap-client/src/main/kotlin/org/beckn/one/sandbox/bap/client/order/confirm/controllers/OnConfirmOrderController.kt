@@ -42,7 +42,11 @@ class OnConfirmOrderController @Autowired constructor(
   @ResponseBody
   fun onConfirmOrderV1(
     @RequestParam messageId: String
-  ): ResponseEntity<out ClientResponse> = onPoll(messageId, protocolClient.getConfirmResponsesCall(messageId))
+  ): ResponseEntity<out ClientResponse> = onPoll(
+    messageId,
+    protocolClient.getConfirmResponsesCall(messageId),
+    ProtocolContext.Action.ON_SEARCH
+  )
 
   @RequestMapping("/client/v2/on_confirm_order")
   @ResponseBody
@@ -55,7 +59,11 @@ class OnConfirmOrderController @Autowired constructor(
         val messageIdArray = messageIds.split(",")
         var okResponseConfirmOrder: MutableList<ClientConfirmResponse> = ArrayList()
           for (messageId in messageIdArray) {
-            val bapResult = onPoll(messageId, protocolClient.getConfirmResponsesCall(messageId))
+            val bapResult = onPoll(
+              messageId,
+              protocolClient.getConfirmResponsesCall(messageId),
+              ProtocolContext.Action.ON_SEARCH
+            )
             when (bapResult.statusCode.value()) {
               200 -> {
                 val resultResponse: ClientConfirmResponse = bapResult.body as ClientConfirmResponse

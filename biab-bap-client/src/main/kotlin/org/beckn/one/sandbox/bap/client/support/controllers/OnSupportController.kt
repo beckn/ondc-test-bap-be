@@ -3,7 +3,6 @@ package org.beckn.one.sandbox.bap.client.support.controllers
 import org.beckn.one.sandbox.bap.client.external.bap.ProtocolClient
 import org.beckn.one.sandbox.bap.client.shared.controllers.AbstractOnPollController
 import org.beckn.one.sandbox.bap.client.shared.dtos.ClientErrorResponse
-import org.beckn.one.sandbox.bap.client.shared.dtos.ClientOrderStatusResponse
 import org.beckn.one.sandbox.bap.client.shared.dtos.ClientResponse
 import org.beckn.one.sandbox.bap.client.shared.dtos.ClientSupportResponse
 import org.beckn.one.sandbox.bap.client.shared.errors.bpp.BppError
@@ -12,7 +11,6 @@ import org.beckn.one.sandbox.bap.client.shared.services.LoggingService
 import org.beckn.one.sandbox.bap.errors.HttpError
 import org.beckn.one.sandbox.bap.factories.ContextFactory
 import org.beckn.one.sandbox.bap.factories.LoggingFactory
-import org.beckn.one.sandbox.bap.message.entities.OrderDao
 import org.beckn.protocol.schemas.ProtocolContext
 import org.beckn.protocol.schemas.ProtocolOnSupport
 import org.springframework.beans.factory.annotation.Autowired
@@ -35,7 +33,11 @@ class OnSupportController @Autowired constructor(
   @ResponseBody
   fun onSupportOrderV1(
     @RequestParam messageId: String
-  ): ResponseEntity<out ClientResponse> = onPoll(messageId, protocolClient.getSupportResponseCall(messageId))
+  ): ResponseEntity<out ClientResponse> = onPoll(
+      messageId,
+      protocolClient.getSupportResponseCall(messageId),
+      ProtocolContext.Action.ON_SEARCH
+  )
 
   @RequestMapping("/client/v2/on_support")
   @ResponseBody
@@ -48,7 +50,11 @@ class OnSupportController @Autowired constructor(
       var okResponseOnSupport: MutableList<ClientResponse> = ArrayList()
 
       for (messageId in messageIdArray) {
-        val bapResult = onPoll(messageId, protocolClient.getSupportResponseCall(messageId))
+        val bapResult = onPoll(
+            messageId,
+            protocolClient.getSupportResponseCall(messageId),
+            ProtocolContext.Action.ON_SEARCH
+        )
         when (bapResult.statusCode.value()) {
           200 -> {
             val resultResponse = bapResult.body as ClientSupportResponse

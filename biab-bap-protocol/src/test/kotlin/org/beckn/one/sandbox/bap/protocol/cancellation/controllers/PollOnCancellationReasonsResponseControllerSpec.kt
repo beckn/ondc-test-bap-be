@@ -8,14 +8,13 @@ import io.kotest.matchers.ints.shouldBeExactly
 import io.kotest.matchers.shouldBe
 import org.beckn.one.sandbox.bap.errors.database.DatabaseError
 import org.beckn.one.sandbox.bap.message.entities.*
-import org.beckn.one.sandbox.bap.message.factories.ProtocolOnRatingMessageFeedbackFactory
 import org.beckn.one.sandbox.bap.message.repositories.BecknResponseRepository
 import org.beckn.one.sandbox.bap.message.repositories.GenericRepository
 import org.beckn.one.sandbox.bap.protocol.cancellation.controller.PollOnCancellationReasonResponseController
 import org.beckn.one.sandbox.bap.protocol.shared.services.PollForResponseService
 import org.beckn.one.sandbox.bap.schemas.factories.ContextFactory
+import org.beckn.protocol.schemas.ProtocolContext
 import org.beckn.protocol.schemas.ProtocolOnCancellationReasons
-import org.beckn.protocol.schemas.ProtocolOnRating
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.springframework.beans.factory.annotation.Autowired
@@ -97,7 +96,10 @@ internal class PollOnCancellationReasonsResponseControllerSpec @Autowired constr
         }
         val pollOnCancellationReasonResponseController = PollOnCancellationReasonResponseController(mockOnPollService, contextFactory)
         it("should respond with failure") {
-          val response = pollOnCancellationReasonResponseController.findResponses(entityContext.messageId)
+          val response = pollOnCancellationReasonResponseController.findResponses(
+              entityContext.messageId,
+              ProtocolContext.Action.ON_CANCEL
+          )
           response.statusCode shouldBe DatabaseError.OnRead.status()
         }
       }

@@ -6,6 +6,7 @@ import org.beckn.one.sandbox.bap.client.shared.services.GenericOnPollService
 import org.beckn.one.sandbox.bap.client.shared.services.LoggingService
 import org.beckn.one.sandbox.bap.factories.ContextFactory
 import org.beckn.one.sandbox.bap.factories.LoggingFactory
+import org.beckn.protocol.schemas.ProtocolContext
 import org.beckn.protocol.schemas.ProtocolResponse
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -22,7 +23,8 @@ open class AbstractOnPollController<Protocol: ProtocolResponse, Output: ClientRe
 
   fun onPoll(
     messageId: String,
-    call: Call<List<Protocol>>
+    call: Call<List<Protocol>>,
+    action: ProtocolContext.Action?
   ): ResponseEntity<out ClientResponse> = onPollService
     .onPoll(contextFactory.create(messageId = messageId), call)
     .fold(
@@ -31,9 +33,8 @@ open class AbstractOnPollController<Protocol: ProtocolResponse, Output: ClientRe
         val context = contextFactory.create(messageId = messageId)
         val loggerRequest = loggingFactory.create(messageId = messageId, transactionId = context.transactionId,
           contextTimestamp = context.timestamp.toString(),
-          action = context.action, bppId = context.bppId,errorCode = it.error().code, errorMessage = it.error().code
+          action = action, bppId = context.bppId,errorCode = it.error().code, errorMessage = it.error().code
         )
-
         loggingService.postLog(loggerRequest)
         ResponseEntity
           .status(it.status().value())
@@ -43,7 +44,7 @@ open class AbstractOnPollController<Protocol: ProtocolResponse, Output: ClientRe
         val context = contextFactory.create(messageId = messageId)
         log.info("Found responses for message {}", messageId)
         val loggerRequest = loggingFactory.create(messageId = messageId, transactionId = context.transactionId, contextTimestamp = context.timestamp.toString(),
-          action = context.action, bppId = context.bppId
+          action = action, bppId = context.bppId
         )
         loggingService.postLog(loggerRequest)
         ResponseEntity.ok(it)

@@ -7,7 +7,7 @@ import org.beckn.one.sandbox.bap.client.shared.services.GenericOnPollService
 import org.beckn.one.sandbox.bap.client.shared.services.LoggingService
 import org.beckn.one.sandbox.bap.factories.ContextFactory
 import org.beckn.one.sandbox.bap.factories.LoggingFactory
-import org.beckn.protocol.schemas.ProtocolOnCancel
+import org.beckn.protocol.schemas.ProtocolContext
 import org.beckn.protocol.schemas.ProtocolOnCancellationReasons
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
@@ -29,5 +29,9 @@ class OnGetPolicyPollController @Autowired constructor(
   @ResponseBody
   fun onCancellationReasonsV1(
     @RequestParam messageId: String
-  ): ResponseEntity<out ClientResponse> = onPoll(messageId, protocolClient.getOnCancellationReasonsResponsesCall(messageId))
+  ): ResponseEntity<out ClientResponse> = onPoll(
+      messageId,
+      protocolClient.getOnCancellationReasonsResponsesCall(messageId),
+      ProtocolContext.Action.ON_SEARCH
+  )
 }

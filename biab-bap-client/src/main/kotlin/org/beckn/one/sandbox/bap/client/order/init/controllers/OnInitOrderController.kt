@@ -3,7 +3,6 @@ package org.beckn.one.sandbox.bap.client.order.init.controllers
 import org.beckn.one.sandbox.bap.client.external.bap.ProtocolClient
 import org.beckn.one.sandbox.bap.client.shared.controllers.AbstractOnPollController
 import org.beckn.one.sandbox.bap.client.shared.dtos.ClientInitResponse
-import org.beckn.one.sandbox.bap.client.shared.dtos.ClientQuoteResponse
 import org.beckn.one.sandbox.bap.client.shared.dtos.ClientResponse
 import org.beckn.one.sandbox.bap.client.shared.errors.bpp.BppError
 import org.beckn.one.sandbox.bap.client.shared.services.GenericOnPollService
@@ -11,6 +10,7 @@ import org.beckn.one.sandbox.bap.client.shared.services.LoggingService
 import org.beckn.one.sandbox.bap.errors.HttpError
 import org.beckn.one.sandbox.bap.factories.ContextFactory
 import org.beckn.one.sandbox.bap.factories.LoggingFactory
+import org.beckn.protocol.schemas.ProtocolContext
 import org.beckn.protocol.schemas.ProtocolOnInit
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -35,7 +35,11 @@ class OnInitOrderController @Autowired constructor(
   @ResponseBody
   fun onInitOrderV1(
     @RequestParam messageId: String
-  ): ResponseEntity<out ClientResponse> = onPoll(messageId, protocolClient.getInitResponsesCall(messageId))
+  ): ResponseEntity<out ClientResponse> = onPoll(
+    messageId,
+    protocolClient.getInitResponsesCall(messageId),
+    ProtocolContext.Action.ON_SEARCH
+  )
 
 
   @RequestMapping("/client/v2/on_initialize_order")

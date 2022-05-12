@@ -4,6 +4,7 @@ import org.beckn.one.sandbox.bap.message.services.ResponseStorageService
 import org.beckn.one.sandbox.bap.protocol.shared.controllers.AbstractCallbackController
 import org.beckn.one.sandbox.bap.protocol.shared.services.LoggingService
 import org.beckn.one.sandbox.bap.schemas.factories.LoggingFactory
+import org.beckn.protocol.schemas.ProtocolContext
 import org.beckn.protocol.schemas.ProtocolOnTrack
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
@@ -26,6 +27,6 @@ class OnTrackController  @Autowired constructor(
     consumes = [MediaType.APPLICATION_JSON_VALUE],
     produces = [MediaType.APPLICATION_JSON_VALUE],
   )
-  fun onTrack(@RequestBody trackResponse: ProtocolOnTrack) = onCallback(trackResponse)
+  fun onTrack(@RequestBody trackResponse: ProtocolOnTrack) = onCallback(trackResponse, ProtocolContext.Action.ON_TRACK)
 
 }

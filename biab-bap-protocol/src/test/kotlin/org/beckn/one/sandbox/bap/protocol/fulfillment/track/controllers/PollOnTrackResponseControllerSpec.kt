@@ -13,6 +13,7 @@ import org.beckn.one.sandbox.bap.message.repositories.BecknResponseRepository
 import org.beckn.one.sandbox.bap.message.repositories.GenericRepository
 import org.beckn.one.sandbox.bap.protocol.shared.services.PollForResponseService
 import org.beckn.one.sandbox.bap.schemas.factories.ContextFactory
+import org.beckn.protocol.schemas.ProtocolContext
 import org.beckn.protocol.schemas.ProtocolOnTrack
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
@@ -96,7 +97,10 @@ internal class PollOnTrackResponseControllerSpec @Autowired constructor(
         }
         val pollTrackResponseController = PollTrackResponseController(mockOnPollService, contextFactory)
         it("should respond with failure") {
-          val response = pollTrackResponseController.findResponses(entityContext.messageId)
+          val response = pollTrackResponseController.findResponses(
+              entityContext.messageId,
+              ProtocolContext.Action.ON_CANCEL
+          )
           response.statusCode shouldBe DatabaseError.OnRead.status()
         }
       }

@@ -10,10 +10,10 @@ import org.beckn.one.sandbox.bap.client.shared.services.LoggingService
 import org.beckn.one.sandbox.bap.errors.HttpError
 import org.beckn.one.sandbox.bap.factories.ContextFactory
 import org.beckn.one.sandbox.bap.factories.LoggingFactory
+import org.beckn.protocol.schemas.ProtocolContext
 
 import org.beckn.protocol.schemas.ProtocolOnSelect
 
-import org.beckn.protocol.schemas.ResponseMessage
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -36,7 +36,7 @@ class OnGetQuotePollController @Autowired constructor(
   @RequestMapping("/client/v1/on_get_quote")
   @ResponseBody
   fun onGetQuoteV1(@RequestParam messageId: String): ResponseEntity<out ClientResponse> =
-    onPoll(messageId, protocolClient.getSelectResponsesCall(messageId))
+    onPoll(messageId, protocolClient.getSelectResponsesCall(messageId), ProtocolContext.Action.ON_SEARCH)
 
   @RequestMapping("/client/v2/on_get_quote")
   @ResponseBody

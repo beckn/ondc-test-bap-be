@@ -3,7 +3,6 @@ package org.beckn.one.sandbox.bap.client.fulfillment.track.controllers
 import org.beckn.one.sandbox.bap.client.external.bap.ProtocolClient
 import org.beckn.one.sandbox.bap.client.shared.controllers.AbstractOnPollController
 import org.beckn.one.sandbox.bap.client.shared.dtos.ClientErrorResponse
-import org.beckn.one.sandbox.bap.client.shared.dtos.ClientOrderStatusResponse
 import org.beckn.one.sandbox.bap.client.shared.dtos.ClientResponse
 import org.beckn.one.sandbox.bap.client.shared.dtos.ClientTrackResponse
 import org.beckn.one.sandbox.bap.client.shared.errors.bpp.BppError
@@ -32,7 +31,7 @@ class OnTrackPollController(
   @RequestMapping("/client/v1/on_track")
   @ResponseBody
   fun onTrack(@RequestParam messageId: String): ResponseEntity<out ClientResponse> =
-    onPoll(messageId, protocolClient.getTrackResponsesCall(messageId))
+    onPoll(messageId, protocolClient.getTrackResponsesCall(messageId), ProtocolContext.Action.ON_SEARCH)
 
   @RequestMapping("/client/v2/on_track")
   @ResponseBody
@@ -42,7 +41,11 @@ class OnTrackPollController(
       var okResponseOnSupport: MutableList<ClientResponse> = ArrayList()
 
       for (messageId in messageIdArray) {
-        val bapResult = onPoll(messageId, protocolClient.getTrackResponsesCall(messageId))
+        val bapResult = onPoll(
+          messageId,
+          protocolClient.getTrackResponsesCall(messageId),
+          ProtocolContext.Action.ON_SEARCH
+        )
         when (bapResult.statusCode.value()) {
           200 -> {
             val resultResponse = bapResult.body as ClientTrackResponse

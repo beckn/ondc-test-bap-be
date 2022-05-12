@@ -12,6 +12,7 @@ import org.beckn.one.sandbox.bap.message.repositories.BecknResponseRepository
 import org.beckn.one.sandbox.bap.message.repositories.GenericRepository
 import org.beckn.one.sandbox.bap.protocol.shared.services.PollForResponseService
 import org.beckn.one.sandbox.bap.schemas.factories.ContextFactory
+import org.beckn.protocol.schemas.ProtocolContext
 import org.beckn.protocol.schemas.ProtocolOnSelect
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
@@ -95,7 +96,10 @@ internal class PollSelectResponseControllerSpec @Autowired constructor(
         }
         val pollSelectResponseController = PollSelectResponseController(mockOnPollService, contextFactory)
         it("should respond with failure") {
-          val response = pollSelectResponseController.findResponses(entityContext.messageId)
+          val response = pollSelectResponseController.findResponses(
+              entityContext.messageId,
+              ProtocolContext.Action.ON_CANCEL
+          )
           response.statusCode shouldBe DatabaseError.OnRead.status()
         }
       }

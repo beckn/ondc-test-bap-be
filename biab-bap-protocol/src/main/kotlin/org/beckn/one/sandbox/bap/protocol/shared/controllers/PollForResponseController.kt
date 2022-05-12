@@ -4,6 +4,7 @@ import org.beckn.one.sandbox.bap.protocol.shared.services.LoggingService
 import org.beckn.one.sandbox.bap.protocol.shared.services.PollForResponseService
 import org.beckn.one.sandbox.bap.schemas.factories.ContextFactory
 import org.beckn.one.sandbox.bap.schemas.factories.LoggingFactory
+import org.beckn.protocol.schemas.ProtocolContext
 import org.beckn.protocol.schemas.ProtocolErrorResponse
 import org.beckn.protocol.schemas.ProtocolResponse
 import org.slf4j.Logger
@@ -19,14 +20,15 @@ open class AbstractPollForResponseController<Protocol: ProtocolResponse>(
   private val log: Logger = LoggerFactory.getLogger(this::class.java)
 
   fun findResponses(
-    messageId: String
+    messageId: String,
+    action: ProtocolContext.Action
   ): ResponseEntity<List<ProtocolResponse>> = responseService
     .findResponses(messageId)
     .fold(
       {
         val protocolContext  = contextFactory.create(messageId = messageId)
         val loggerRequest = loggingFactory.create(messageId = protocolContext.messageId, transactionId = protocolContext.transactionId, contextTimestamp = protocolContext.timestamp.toString(),
-          action = protocolContext.action, bppId = protocolContext.bppId, errorMessage = it.error().message, errorCode = it.error().code
+          action = action, bppId = protocolContext.bppId, errorMessage = it.error().message, errorCode = it.error().code
         )
         loggingService.postLog(loggerRequest)
         log.error("Error when finding search response by message id. Error: {}", it)
@@ -37,7 +39,7 @@ open class AbstractPollForResponseController<Protocol: ProtocolResponse>(
       {
         val protocolContext  = contextFactory.create(messageId = messageId)
         val loggerRequest = loggingFactory.create(messageId = protocolContext.messageId, transactionId = protocolContext.transactionId, contextTimestamp = protocolContext.timestamp.toString(),
-          action = protocolContext.action, bppId = protocolContext.bppId
+          action = action, bppId = protocolContext.bppId
         )
         loggingService.postLog(loggerRequest)
 
@@ -53,12 +55,26 @@ open class AbstractPollForResponseController<Protocol: ProtocolResponse>(
     .fold(
       {
         log.error("Error when finding search response by message id. Error: {}", it)
+        val loggerRequest = loggingFactory.create(
+          action = ProtocolContext.Action.ON_STATUS,
+          errorCode = it.error().code,
+          errorMessage = it.error().message
+        )
+        loggingService.postLog(loggerRequest)
         ResponseEntity
           .status(it.status().value())
           .body(listOf(ProtocolErrorResponse(context = contextFactory.create(), error = it.error())))
       },
       {
         log.info("Found responses for order {}", orderId)
+        val loggerRequest = loggingFactory.create(
+          messageId = it.first().context?.messageId,
+          transactionId = it.first().context?.transactionId,
+          contextTimestamp = it.first().context?.timestamp.toString(),
+          action = ProtocolContext.Action.ON_STATUS, bppId = it.first().context?.bppId
+        )
+        loggingService.postLog(loggerRequest)
+
         ResponseEntity.ok(it)
       }
     )

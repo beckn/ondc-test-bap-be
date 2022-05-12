@@ -8,6 +8,7 @@ import org.beckn.one.sandbox.bap.client.shared.services.GenericOnPollService
 import org.beckn.one.sandbox.bap.client.shared.services.LoggingService
 import org.beckn.one.sandbox.bap.factories.ContextFactory
 import org.beckn.one.sandbox.bap.factories.LoggingFactory
+import org.beckn.protocol.schemas.ProtocolContext
 import org.beckn.protocol.schemas.ProtocolOnCancel
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
@@ -29,5 +30,9 @@ class OnCancelOrderController @Autowired constructor(
   @ResponseBody
   fun onCancelOrderV1(
     @RequestParam messageId: String
-  ): ResponseEntity<out ClientResponse> = onPoll(messageId, protocolClient.getCancelResponsesCall(messageId))
+  ): ResponseEntity<out ClientResponse> = onPoll(
+      messageId,
+      protocolClient.getCancelResponsesCall(messageId),
+      ProtocolContext.Action.ON_SEARCH
+  )
 }

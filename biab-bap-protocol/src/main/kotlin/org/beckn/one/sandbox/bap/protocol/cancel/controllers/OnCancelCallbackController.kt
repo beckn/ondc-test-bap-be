@@ -4,6 +4,7 @@ import org.beckn.one.sandbox.bap.message.services.ResponseStorageService
 import org.beckn.one.sandbox.bap.protocol.shared.controllers.AbstractCallbackController
 import org.beckn.one.sandbox.bap.protocol.shared.services.LoggingService
 import org.beckn.one.sandbox.bap.schemas.factories.LoggingFactory
+import org.beckn.protocol.schemas.ProtocolContext
 import org.beckn.protocol.schemas.ProtocolOnCancel
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
@@ -23,5 +24,5 @@ class OnCancelCallbackController  @Autowired constructor(
     consumes = [MediaType.APPLICATION_JSON_VALUE],
     produces = [MediaType.APPLICATION_JSON_VALUE],
   )
-  fun onCancel(@RequestBody cancelResponse: ProtocolOnCancel) = onCallback(cancelResponse)
+  fun onCancel(@RequestBody cancelResponse: ProtocolOnCancel) = onCallback(cancelResponse, ProtocolContext.Action.ON_CANCEL)
 }

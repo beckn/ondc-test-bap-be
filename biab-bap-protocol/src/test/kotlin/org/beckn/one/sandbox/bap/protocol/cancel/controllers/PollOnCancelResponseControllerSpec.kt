@@ -13,6 +13,7 @@ import org.beckn.one.sandbox.bap.message.repositories.BecknResponseRepository
 import org.beckn.one.sandbox.bap.message.repositories.GenericRepository
 import org.beckn.one.sandbox.bap.protocol.shared.services.PollForResponseService
 import org.beckn.one.sandbox.bap.schemas.factories.ContextFactory
+import org.beckn.protocol.schemas.ProtocolContext
 import org.beckn.protocol.schemas.ProtocolOnCancel
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
@@ -96,7 +97,10 @@ internal class PollOnCancelResponseControllerSpec @Autowired constructor(
         }
         val pollCancelResponseController = PollCancelResponseController(mockOnCancelService, contextFactory)
         it("should respond with failure") {
-          val response = pollCancelResponseController.findResponses(entityContext.messageId)
+          val response = pollCancelResponseController.findResponses(
+              entityContext.messageId,
+              ProtocolContext.Action.ON_CANCEL
+          )
           response.statusCode shouldBe DatabaseError.OnRead.status()
         }
       }
