@@ -72,10 +72,10 @@ data class ProtocolOndcOrderCancellation @Default constructor(
 }
 
 data class ProtocolOndcLinkedOrders @Default constructor(
-  val id: String
+  val id: String?
 )
 data class ProtocolSelectedReason @Default constructor(
-  val id: String
+  val id: String?
 )
 
 data class ProtocolPolicy @Default constructor(

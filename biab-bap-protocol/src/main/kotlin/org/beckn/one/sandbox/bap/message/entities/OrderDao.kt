@@ -73,10 +73,10 @@ data class OndcOrderCancellationDao @Default constructor(
 }
 
 data class OndcLinkedOrdersDao @Default constructor(
-  val id: String
+  val id: String?
 )
 data class SelectedReasonDao @Default constructor(
-  val id: String
+  val id: String?
 )
 
 data class PolicyDao @Default constructor(
