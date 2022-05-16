@@ -21,7 +21,6 @@ open class GenericOnPollService<Protocol : ProtocolResponse, Output : ClientResp
     return protocolService.getResponse(call)
       .flatMap { transformer.transform(it, context) }
   }
-
 }
 
 interface GenericOnPollMapper<in Protocol : ProtocolResponse, out Output : ClientResponse> {

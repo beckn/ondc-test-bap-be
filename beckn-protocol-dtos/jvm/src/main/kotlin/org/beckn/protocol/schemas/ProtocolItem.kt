@@ -21,9 +21,12 @@ data class ProtocolItem @Default constructor(
   @JsonProperty("@ondc/org/seller_pickup_return") val ondcSellerPickupReturn: Boolean? = true,
   @JsonProperty("@ondc/org/return_window") val ondcReturnWindow: String?,
   @JsonProperty("@ondc/org/time_to_ship") val ondcTimeToShip: String? = null,
-  @JsonProperty("@ondc/org/available_on_cod") val ondcAvailableOnCod: Boolean? = true,
+  @JsonProperty("@ondc/org/available_on_cod") val ondcAvailableOnCod: Boolean,
   @JsonProperty("@ondc/org/statutory_reqs_packaged_commodities") val ondcStatutoryPackagedCommodities: OndcStatutoryPackagedCommodities?,
   @JsonProperty("@ondc/org/statutory_reqs_prepackaged_food") val ondcStatutoryPackagedFood: OndcStatutoryPackagedFood?,
+  @JsonProperty("@ondc/org/contact_details_consumer_care") val ondcContactDetailsConsumerCare: String,
+  @JsonProperty("@ondc/org/mandatory_reqs_veggies_fruits") val ondcMandatoryReqsVeggiesFruits: String,
+  @JsonProperty("rateable") val rateable: Boolean,
   )
 
  data class OndcStatutoryPackagedCommodities @Default constructor(

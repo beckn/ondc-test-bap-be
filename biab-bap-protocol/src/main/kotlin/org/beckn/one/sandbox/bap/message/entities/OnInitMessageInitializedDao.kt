@@ -35,6 +35,9 @@ data class OnInitMessageInitializedItemsDao @Default constructor(
   val ondcAvailableOnCod: Boolean? = true,
   val ondcStatutoryPackagedCommodities: OndcStatutoryPackagedCommoditiesDao? = null,
   val ondcStatutoryPackagedFood: OndcStatutoryPackagedFoodDao? = null,
+  val ondcContactDetailsConsumerCare: String,
+  val ondcMandatoryReqsVeggiesFruits: String,
+  val rateable: Boolean? = true,
 )
 
 // TODO: Example of inline declaration

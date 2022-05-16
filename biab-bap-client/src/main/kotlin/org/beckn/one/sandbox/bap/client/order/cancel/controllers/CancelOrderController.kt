@@ -32,7 +32,7 @@ class CancelOrderController @Autowired constructor(
   fun cancelOrderV1(@RequestBody request: CancelOrderDto): ResponseEntity<ProtocolAckResponse> {
     log.info("Got request to cancel order")
     val context = getContext(request.context.transactionId, request.context.bppId)
-    setLogging(context, null, null)
+    setLogging(context, null)
     return cancelOrderService.cancel(
       context = context,
       orderId = request.message.orderId,
@@ -40,12 +40,12 @@ class CancelOrderController @Autowired constructor(
     ).fold(
       {
         log.error("Error when cancelling order with BPP: {}", it)
-        setLogging(context, it, null)
+        setLogging(context, it)
         mapToErrorResponse(it, context)
       },
       {
         log.info("Successfully cancelled order with BPP. Message: {}", it)
-        setLogging(context, null, it)
+        setLogging(context, null)
         ResponseEntity.ok(ProtocolAckResponse(context = context, message = ResponseMessage.ack()))
       }
     )
@@ -61,7 +61,7 @@ class CancelOrderController @Autowired constructor(
       )
     )
 
-  private fun setLogging(context: ProtocolContext, error: HttpError?, protocolAckResponse: ProtocolAckResponse?) {
+  private fun setLogging(context: ProtocolContext, error: HttpError?) {
     val loggerRequest = loggingFactory.create(messageId = context.messageId,
       transactionId = context.transactionId, contextTimestamp = context.timestamp.toString(),
       action = context.action, bppId = context.bppId, errorCode = error?.error()?.code,

@@ -18,6 +18,7 @@ data class OrderDao @Default constructor(
   val updatedAt: java.time.OffsetDateTime? = null,
   val ondcCancellation: OndcOrderCancellationDao? =  null,
   val ondcLinkedOrders: List<OndcLinkedOrdersDao>? = null,
+
 )
 
 
@@ -38,7 +39,15 @@ data class SelectMessageSelectedAddOnsDao @Default constructor(
 // TODO similar to OnInitMessageInitializedItems
 data class SelectMessageSelectedItemsDao @Default constructor(
   val id: String,
-  val quantity: ItemQuantityAllocatedDao
+  val quantity: ItemQuantityAllocatedDao,
+  val ondcReturnable: Boolean? = true,
+  val ondcCancellable: Boolean? = true,
+  val ondcSellerPickupReturn: Boolean? = true,
+  val ondcReturnWindow: String?,
+  val ondcTimeToShip: String? = null,
+  val ondcAvailableOnCod: Boolean? = true,
+  val ondcStatutoryPackagedCommodities: OndcStatutoryPackagedCommodities?,
+  val ondcStatutoryPackagedFood: OndcStatutoryPackagedFood?
 )
 
 data class SelectMessageSelectedOffersDao @Default constructor(

@@ -33,8 +33,8 @@ class OnConfirmOrderController @Autowired constructor(
   val protocolClient: ProtocolClient,
   val mapping: OnOrderProtocolToEntityOrder,
   val onConfirmOrderService: OnConfirmOrderService,
-  loggingFactory: LoggingFactory,
-  loggingService: LoggingService,
+  val loggingFactory: LoggingFactory,
+  val loggingService: LoggingService,
 ) : AbstractOnPollController<ProtocolOnConfirm, ClientConfirmResponse>(onPollService, contextFactory, loggingFactory, loggingService) {
   val log: Logger = LoggerFactory.getLogger(this::class.java)
 
@@ -62,7 +62,7 @@ class OnConfirmOrderController @Autowired constructor(
             val bapResult = onPoll(
               messageId,
               protocolClient.getConfirmResponsesCall(messageId),
-              ProtocolContext.Action.ON_SEARCH
+              ProtocolContext.Action.ON_CONFIRM
             )
             when (bapResult.statusCode.value()) {
               200 -> {
@@ -71,6 +71,7 @@ class OnConfirmOrderController @Autowired constructor(
                   onConfirmOrderService.findById(resultResponse.context?.messageId).fold(
                     {
                       log.error("Db error to fetch order based on message id")
+                      setLogging(resultResponse.context!!, it)
                       okResponseConfirmOrder.add(
                         ClientConfirmResponse(
                           error = it.error(),
@@ -85,6 +86,7 @@ class OnConfirmOrderController @Autowired constructor(
                       orderDao.parentOrderId = it.parentOrderId
                       onConfirmOrderService.updateOrder(orderDao).fold(
                         {
+                          setLogging(resultResponse.context!!, it)
                           okResponseConfirmOrder.add(
                             ClientConfirmResponse(
                               error = it.error(),
@@ -100,6 +102,8 @@ class OnConfirmOrderController @Autowired constructor(
                     }
                   )
                 } else {
+                  setLogging(resultResponse.context!!, DatabaseError.NoDataFound)
+
                   okResponseConfirmOrder.add(
                     ClientConfirmResponse(
                       error = DatabaseError.NoDataFound.noDataFoundError,
@@ -122,13 +126,24 @@ class OnConfirmOrderController @Autowired constructor(
 
           return ResponseEntity.ok(okResponseConfirmOrder)
       } else {
+        setLogging(contextFactory.create(), BppError.AuthenticationError)
         return mapToErrorResponse(BppError.BadRequestError)
       }
     } else {
+      setLogging(contextFactory.create(), BppError.AuthenticationError)
       return mapToErrorResponse(
         BppError.AuthenticationError
       )
     }
+  }
+
+  private fun setLogging(context: ProtocolContext, error: HttpError?) {
+    val loggerRequest = loggingFactory.create(messageId = context.messageId,
+      transactionId = context.transactionId, contextTimestamp = context.timestamp.toString(),
+      action = context.action, bppId = context.bppId, errorCode = error?.error()?.code,
+      errorMessage = error?.error()?.message
+    )
+    loggingService.postLog(loggerRequest)
   }
 
   private fun mapToErrorResponse(it: HttpError, context: ProtocolContext? = null) = ResponseEntity

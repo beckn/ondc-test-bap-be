@@ -31,8 +31,8 @@ class OnOrderStatusPollController(
   val mapping: OnOrderProtocolToEntityOrder,
   val protocolClient: ProtocolClient,
   val onOrderStatusService: OnOrderStatusService,
-  loggingFactory: LoggingFactory,
-  loggingService: LoggingService,
+  val loggingFactory: LoggingFactory,
+  val loggingService: LoggingService,
 ) : AbstractOnPollController<ProtocolOnOrderStatus, ClientOrderStatusResponse>(onPollService, contextFactory, loggingFactory, loggingService) {
 
   @RequestMapping("/client/v1/on_order_status")
@@ -114,4 +114,14 @@ class OnOrderStatusPollController(
         )
       )
     )
+
+  private fun setLogging(context: ProtocolContext, error: HttpError?) {
+    val loggerRequest = loggingFactory.create(messageId = context.messageId,
+      transactionId = context.transactionId, contextTimestamp = context.timestamp.toString(),
+      action = context.action, bppId = context.bppId, errorCode = error?.error()?.code,
+      errorMessage = error?.error()?.message
+    )
+    loggingService.postLog(loggerRequest)
+  }
+
 }

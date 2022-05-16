@@ -19,5 +19,6 @@ data class ProviderCatalogDao @Default constructor(
   val items: List<ItemDao>? = null,
   val tags: Map<String, String>? = null,
   val exp: LocalDateTime? = null,
-  val matched: Boolean? = null
+  val matched: Boolean? = null,
+  val ondcFssaiLicenseNo: String
 )

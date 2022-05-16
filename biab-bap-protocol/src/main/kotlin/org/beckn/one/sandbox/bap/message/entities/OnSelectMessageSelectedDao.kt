@@ -32,6 +32,9 @@ data class SelectedItemDao @Default constructor(
   val ondcAvailableOnCod: Boolean? = true,
   val ondcStatutoryPackagedCommodities: OndcStatutoryPackagedCommoditiesDao? = null,
   val ondcStatutoryPackagedFood: OndcStatutoryPackagedFoodDao? = null,
+  val ondcContactDetailsConsumerCare: String?,
+  val ondcMandatoryReqsVeggiesFruits: String?,
+  val rateable: Boolean? = true,
 )
 
 data class ItemQuantityDao @Default constructor(

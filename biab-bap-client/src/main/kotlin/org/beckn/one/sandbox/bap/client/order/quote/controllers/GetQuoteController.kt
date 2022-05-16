@@ -10,7 +10,6 @@ import org.beckn.one.sandbox.bap.factories.LoggingFactory
 import org.beckn.protocol.schemas.ProtocolAckResponse
 import org.beckn.protocol.schemas.ProtocolContext
 import org.beckn.protocol.schemas.ProtocolContext.Action.SELECT
-import org.beckn.protocol.schemas.ProtocolError
 import org.beckn.protocol.schemas.ResponseMessage
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -35,17 +34,17 @@ class GetQuoteController @Autowired constructor(
   @ResponseBody
   fun getQuoteV1(@RequestBody request: GetQuoteRequestDto): ResponseEntity<ProtocolAckResponse> {
     val context = getContext(request.context.transactionId)
-    setLogging(context, null, null)
+    setLogging(context, null)
     return quoteService.getQuote(context, request.message.cart)
       .fold(
         {
           log.error("Error when getting quote: {}", it)
-          setLogging(context, it, null)
+          setLogging(context, it)
           mapToErrorResponseV1(it, context)
         },
         {
           log.info("Successfully initiated get quote. Message: {}", it)
-          setLogging(context, null, it)
+          setLogging(context, null)
           ResponseEntity.ok(ProtocolAckResponse(context = context, message = ResponseMessage.ack()))
         }
       )
@@ -64,17 +63,17 @@ class GetQuoteController @Autowired constructor(
     if(!request.isNullOrEmpty()){
       for( quoteRequest:GetQuoteRequestDto in request){
         val context = getContext(quoteRequest.context.transactionId)
-        setLogging(context, null, null)
+        setLogging(context, null)
         quoteService.getQuote(context, quoteRequest.message.cart)
           .fold(
             {
               log.error("Error when getting quote: {}", it)
-              setLogging(context, it, null)
+              setLogging(context, it)
               okResponseQuotes.add(ProtocolAckResponse(context = context, message = it.message(), error = it.error()))
             },
             {
               log.info("`Successfully initiated get quote`. Message: {}", it)
-              setLogging(context, null, it)
+              setLogging(context, null)
               okResponseQuotes.add(ProtocolAckResponse(context = context, message = ResponseMessage.ack()))
             }
           )
@@ -96,7 +95,7 @@ class GetQuoteController @Autowired constructor(
     }
   }
 
-  private fun setLogging(context: ProtocolContext, error: HttpError?, protocolAckResponse: ProtocolAckResponse?) {
+  private fun setLogging(context: ProtocolContext, error: HttpError?) {
     val loggerRequest = loggingFactory.create(messageId = context.messageId,
       transactionId = context.transactionId, contextTimestamp = context.timestamp.toString(),
       action = context.action, bppId = context.bppId, errorCode = error?.error()?.code,

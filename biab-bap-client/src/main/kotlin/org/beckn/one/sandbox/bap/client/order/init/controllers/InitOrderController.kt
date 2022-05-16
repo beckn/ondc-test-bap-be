@@ -35,7 +35,7 @@ class InitOrderController @Autowired constructor(
     @RequestBody orderRequest: OrderRequestDto
   ): ResponseEntity<ProtocolAckResponse> {
     val context = getContext(orderRequest.context.transactionId)
-    setLogging(context, null, null)
+    setLogging(context, null)
     return initOrderService.initOrder(
       context = context,
       order = orderRequest.message
@@ -43,12 +43,12 @@ class InitOrderController @Autowired constructor(
       .fold(
         {
           log.error("Error when initializing order: {}", it)
-          setLogging(context, it, null)
+          setLogging(context, it)
           mapToErrorResponse(it, context)
         },
         {
           log.info("Successfully initialized order. Message: {}", it)
-          setLogging(context, null, it)
+          setLogging(context, null)
           ResponseEntity.ok(ProtocolAckResponse(context = context, message = ResponseMessage.ack()))
         }
       )
@@ -73,7 +73,7 @@ class InitOrderController @Autowired constructor(
     if(!orderRequest.isNullOrEmpty()) {
       for (data in orderRequest) {
         val context = getContext(data.context.transactionId)
-        setLogging(context, null, null)
+        setLogging(context, null)
         initOrderService.initOrder(
           context = context,
           order = data.message
@@ -81,18 +81,23 @@ class InitOrderController @Autowired constructor(
           .fold(
             {
               log.error("Error when initializing order: {}", it)
-              setLogging(context, it, null)
+              setLogging(context, it)
               okResponseInit.add(ProtocolAckResponse(context = context, message = it.message(), error = it.error()))
             },
             {
               log.info("Successfully initialized order. Message: {}", it)
-              setLogging(context, null, it)
+              setLogging(context, null)
               okResponseInit.add(ProtocolAckResponse(context = context, message = ResponseMessage.ack()))
             }
           )
       }
       return ResponseEntity.ok(okResponseInit)
     }else {
+      val loggerRequest = loggingFactory.create(
+        action = ProtocolContext.Action.SELECT,  errorCode = BppError.BadRequestError.badRequestError.code,
+        errorMessage = BppError.BadRequestError.badRequestError.message
+      )
+      loggingService.postLog(loggerRequest)
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .body(
           listOf(ProtocolAckResponse(
@@ -103,7 +108,7 @@ class InitOrderController @Autowired constructor(
     }
   }
 
-  private fun setLogging(context: ProtocolContext, error: HttpError?, protocolAckResponse: ProtocolAckResponse?) {
+  private fun setLogging(context: ProtocolContext, error: HttpError?) {
     val loggerRequest = loggingFactory.create(messageId = context.messageId,
       transactionId = context.transactionId, contextTimestamp = context.timestamp.toString(),
       action = context.action, bppId = context.bppId, errorCode = error?.error()?.code,

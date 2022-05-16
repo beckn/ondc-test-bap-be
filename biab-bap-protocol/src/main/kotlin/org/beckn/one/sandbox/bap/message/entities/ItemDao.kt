@@ -1,5 +1,6 @@
 package org.beckn.one.sandbox.bap.message.entities
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import org.beckn.protocol.schemas.Default
 
 data class ItemDao @Default constructor(
@@ -19,9 +20,11 @@ data class ItemDao @Default constructor(
   val ondcSellerPickupReturn: Boolean? = true,
   val ondcReturnWindow: String?= null,
   val ondcTimeToShip: String? = null,
-  val ondcAvailableOnCod: Boolean? = true,
+  val ondcAvailableOnCod: Boolean,
   val ondcStatutoryPackagedCommodities: OndcStatutoryPackagedCommoditiesDao? = null,
-  val ondcStatutoryPackagedFood: OndcStatutoryPackagedFoodDao? = null,
+  val ondcContactDetailsConsumerCare: String,
+  val ondcMandatoryReqsVeggiesFruits: String,
+  val rateable: Boolean,
 )
 
 data class OndcStatutoryPackagedCommoditiesDao @Default constructor(
