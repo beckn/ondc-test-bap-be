@@ -36,28 +36,27 @@ class SearchService @Autowired constructor(
       return registryService
         .lookupBppById(context.bppId!!)
         .flatMap {
-          log.error("Error during search. Error: {}", it)
-          val loggerRequest = loggingFactory.create(messageId = context.messageId, transactionId = context.transactionId,
-            contextTimestamp = context.timestamp.toString(),
-            action = context.action, bppId = context.bppId,subscriberId = it.first().subscriber_id, subscriberType = SubscriberDto.Type.LREG.name
-          )
-          loggingService.postLog(loggerRequest)
+          setLogging(context, null,it.first().subscriber_id, SubscriberDto.Type.LREG.name)
           bppSearchService.search(it.first().subscriber_url, context, criteria)
         }
     }
     return registryService
       .lookupGateways()
       .flatMap {
-        val loggerRequest = loggingFactory.create(messageId = context.messageId, transactionId = context.transactionId,
-          contextTimestamp = context.timestamp.toString(),
-          action = context.action, bppId = context.bppId,subscriberId = it.first().subscriber_id, subscriberType = SubscriberDto.Type.BG.name
-        )
-        loggingService.postLog(loggerRequest)
-
+        setLogging(context, null,it.first().subscriber_id, SubscriberDto.Type.BG.name)
         it.fold(GatewaySearchError.NullResponse.left() as Either<HttpError, ProtocolAckResponse>) { previousGatewayResponse, gateway ->
           previousGatewayResponse.orElse { gatewayService.search(gateway, context, criteria) }
         }
       }
+  }
+
+
+  private fun setLogging(context: ProtocolContext, error: HttpError?, subscriberId: String?, subscriberType: String?) {
+    val loggerRequest = loggingFactory.create(messageId = context.messageId, transactionId = context.transactionId,
+      contextTimestamp = context.timestamp.toString(),
+      action = context.action, bppId = context.bppId,subscriberId = subscriberId, subscriberType = subscriberType
+    )
+    loggingService.postLog(loggerRequest)
   }
 
   private fun isBppFilterSpecified(context: ProtocolContext) =

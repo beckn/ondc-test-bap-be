@@ -93,11 +93,7 @@ class InitOrderController @Autowired constructor(
       }
       return ResponseEntity.ok(okResponseInit)
     }else {
-      val loggerRequest = loggingFactory.create(
-        action = ProtocolContext.Action.SELECT,  errorCode = BppError.BadRequestError.badRequestError.code,
-        errorMessage = BppError.BadRequestError.badRequestError.message
-      )
-      loggingService.postLog(loggerRequest)
+      setLogging(contextFactory.create(action = ProtocolContext.Action.INIT), BppError.BadRequestError)
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .body(
           listOf(ProtocolAckResponse(
@@ -111,7 +107,7 @@ class InitOrderController @Autowired constructor(
   private fun setLogging(context: ProtocolContext, error: HttpError?) {
     val loggerRequest = loggingFactory.create(messageId = context.messageId,
       transactionId = context.transactionId, contextTimestamp = context.timestamp.toString(),
-      action = context.action, bppId = context.bppId, errorCode = error?.error()?.code,
+      action = ProtocolContext.Action.INIT, bppId = context.bppId, errorCode = error?.error()?.code,
       errorMessage = error?.error()?.message
     )
     loggingService.postLog(loggerRequest)

@@ -34,7 +34,7 @@ class LoggingFactory @Autowired constructor(
     context_domain = domain,
     context_country = country,
     context_city = city,
-    context_action = action?.value,
+    context_action =  action?.value ,
     context_core_version = ProtocolVersion.V0_9_1.value,
     context_bap_id = bapId,
     context_bap_uri = bapUrl,

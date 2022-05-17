@@ -46,14 +46,15 @@ class ConfirmOrderController @Autowired constructor(
     return confirmOrderService.confirmOrder(
       context = context,
       order = orderRequest.message
-    )
-      .fold(
+    ).fold(
         {
           log.error("Error when confirming order: {}", it)
+          setLogging(context, it)
           mapToErrorResponseV1(it, context)
         },
         {
           log.info("Successfully confirmed order. Message: {}", it)
+          setLogging(context, null)
           ResponseEntity.ok(ProtocolAckResponse(context = context, message = ResponseMessage.ack()))
         }
       )
@@ -136,10 +137,11 @@ class ConfirmOrderController @Autowired constructor(
         }
         return ResponseEntity.ok(okResponseConfirmOrders)
       } else {
-
+        setLogging(contextFactory.create(), BppError.AuthenticationError)
         return mapToErrorResponseV2(BppError.AuthenticationError, null)
       }
     } else {
+      setLogging(contextFactory.create(), BppError.BadRequestError)
       return mapToErrorResponseV2(BppError.BadRequestError, null)
     }
   }

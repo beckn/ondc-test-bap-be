@@ -25,8 +25,8 @@ class OnSupportController @Autowired constructor(
   onPollService: GenericOnPollService<ProtocolOnSupport, ClientSupportResponse>,
   val contextFactory: ContextFactory,
   val protocolClient: ProtocolClient,
-  loggingFactory: LoggingFactory,
-  loggingService: LoggingService,
+  val loggingFactory: LoggingFactory,
+  val loggingService: LoggingService,
 ) : AbstractOnPollController<ProtocolOnSupport, ClientSupportResponse>(onPollService, contextFactory, loggingFactory, loggingService) {
 
   @RequestMapping("/client/v1/on_support")
@@ -50,6 +50,7 @@ class OnSupportController @Autowired constructor(
       var okResponseOnSupport: MutableList<ClientResponse> = ArrayList()
 
       for (messageId in messageIdArray) {
+        val contextProtocol = contextFactory.create(messageId = messageId, action = ProtocolContext.Action.ON_SUPPORT)
         val bapResult = onPoll(
             messageId,
             protocolClient.getSupportResponseCall(messageId),
@@ -57,10 +58,12 @@ class OnSupportController @Autowired constructor(
         )
         when (bapResult.statusCode.value()) {
           200 -> {
+            setLogging(contextProtocol ,  null)
             val resultResponse = bapResult.body as ClientSupportResponse
             okResponseOnSupport.add(resultResponse)
           }
           else -> {
+            setLogging(contextProtocol, BppError.Nack)
             okResponseOnSupport.add(
               ClientErrorResponse(
                 context = contextFactory.create(messageId = messageId),
@@ -72,9 +75,20 @@ class OnSupportController @Autowired constructor(
       }
       return ResponseEntity.ok(okResponseOnSupport)
     } else {
+      setLogging(contextFactory.create(action = ProtocolContext.Action.ON_SUPPORT), BppError.BadRequestError)
       return mapToErrorResponse(BppError.BadRequestError)
     }
   }
+
+  private fun setLogging(context: ProtocolContext, error: HttpError?) {
+    val loggerRequest = loggingFactory.create(messageId = context.messageId,
+      transactionId = context.transactionId, contextTimestamp = context.timestamp.toString(),
+      action = ProtocolContext.Action.ON_SUPPORT, bppId = context.bppId, errorCode = error?.error()?.code,
+      errorMessage = error?.error()?.message
+    )
+    loggingService.postLog(loggerRequest)
+  }
+
 
   private fun mapToErrorResponse(it: HttpError, context: ProtocolContext? = null) = ResponseEntity
     .status(it.status())

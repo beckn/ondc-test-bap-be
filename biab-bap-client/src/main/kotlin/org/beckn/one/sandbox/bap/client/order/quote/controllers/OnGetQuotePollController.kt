@@ -47,7 +47,7 @@ class OnGetQuotePollController @Autowired constructor(
       val messageIdArray = messageIds.split(",")
       var okResponseQuotes: MutableList<ClientQuoteResponse> = ArrayList()
        for (msgId in messageIdArray) {
-         val context = contextFactory.create(messageId = msgId)
+         val context = contextFactory.create(messageId = msgId, action = ProtocolContext.Action.ON_SELECT)
          setLogging(context, null)
           onPollService.onPoll(
             context ,
@@ -70,11 +70,7 @@ class OnGetQuotePollController @Autowired constructor(
         log.info("`Initiated and returning on quotes polling result`. Message: {}", okResponseQuotes)
         return ResponseEntity.ok(okResponseQuotes)
     } else {
-      val loggerRequest = loggingFactory.create(
-        action = ProtocolContext.Action.ON_SELECT, errorCode = BppError.BadRequestError.badRequestError.code,
-        errorMessage = BppError.BadRequestError.badRequestError.message
-      )
-      loggingService.postLog(loggerRequest)
+      setLogging(contextFactory.create(action = ProtocolContext.Action.ON_SELECT), error = BppError.BadRequestError)
       return mapToErrorResponse(BppError.BadRequestError)
     }
   }

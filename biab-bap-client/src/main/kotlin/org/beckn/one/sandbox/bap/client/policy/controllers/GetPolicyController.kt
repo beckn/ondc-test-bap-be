@@ -5,7 +5,10 @@ import org.beckn.one.sandbox.bap.client.shared.dtos.ClientOrderPolicyMultipleRes
 import org.beckn.one.sandbox.bap.client.shared.dtos.ClientOrderPolicyResponse
 import org.beckn.one.sandbox.bap.client.shared.dtos.ClientOrderPolicyResponseMessage
 import org.beckn.one.sandbox.bap.client.shared.dtos.GetOrderPolicyDto
+import org.beckn.one.sandbox.bap.client.shared.services.LoggingService
+import org.beckn.one.sandbox.bap.errors.HttpError
 import org.beckn.one.sandbox.bap.factories.ContextFactory
+import org.beckn.one.sandbox.bap.factories.LoggingFactory
 import org.beckn.protocol.schemas.ProtocolAckResponse
 import org.beckn.protocol.schemas.ProtocolContext
 import org.beckn.protocol.schemas.ResponseMessage
@@ -22,7 +25,9 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 class GetPolicyController @Autowired constructor(
   private val contextFactory: ContextFactory,
-  private val getPolicyService: GetPolicyService
+  private val getPolicyService: GetPolicyService,
+  val loggingFactory: LoggingFactory,
+  val loggingService: LoggingService,
 ) {
   val log: Logger = LoggerFactory.getLogger(this::class.java)
 
@@ -30,15 +35,17 @@ class GetPolicyController @Autowired constructor(
   @ResponseBody
   fun getCancellationPolicyV1(@RequestBody request: GetOrderPolicyDto): ResponseEntity<ProtocolAckResponse> {
     log.info("Got request for getting order policy from BPP")
-    val context = getContext(request.context.transactionId, request.context.bppId, ProtocolContext.Action.SEARCH)
+    val context = getContext(request.context.transactionId, request.context.bppId, ProtocolContext.Action.CANCEL)
     return getPolicyService.getCancellationPolicy(context = context).fold(
       {
         log.error("Error when getting order policy from BPP: {}", it)
+        setLogging(context, it)
         ResponseEntity.status(it.status())
           .body(ProtocolAckResponse(context = context, error = it.error(),message = ResponseMessage.nack()))
       },
       {
         log.info("Successfully got order policy from BPP. Message: {}", it)
+        setLogging(context, null)
         ResponseEntity.ok(ProtocolAckResponse(context = context, message = ResponseMessage.ack()))
       }
     )
@@ -48,15 +55,17 @@ class GetPolicyController @Autowired constructor(
   @ResponseBody
   fun getRatingCategoriesV1(@RequestBody request: GetOrderPolicyDto): ResponseEntity<ClientOrderPolicyResponse> {
     log.info("Got request for getting rating categories from BPP")
-    val context = getContext(request.context.transactionId, request.context.bppId, ProtocolContext.Action.SEARCH)
+    val context = getContext(request.context.transactionId, request.context.bppId, ProtocolContext.Action.RATING)
     return getPolicyService.getRatingCategoriesPolicy(context = context).fold(
       {
         log.error("Error when getting rating categories from BPP: {}", it)
+        setLogging(context, it)
         ResponseEntity.status(it.status())
           .body(ClientOrderPolicyResponse(context = context, error = it.error()))
       },
       {
         log.info("Successfully got rating categories from BPP. Message: {}", it)
+        setLogging(context, null)
         ResponseEntity.ok(
           ClientOrderPolicyResponse(
             context = context,
@@ -106,6 +115,16 @@ class GetPolicyController @Autowired constructor(
 //      return ResponseEntity.ok(response)
 //    return ResponseEntity.status(status.first().value()).body(response)
 //  }
+
+  private fun setLogging(context: ProtocolContext, error: HttpError?) {
+    val loggerRequest = loggingFactory.create(messageId = context.messageId,
+      transactionId = context.transactionId, contextTimestamp = context.timestamp.toString(),
+      action = context.action, bppId = context.bppId, errorCode = error?.error()?.code,
+      errorMessage = error?.error()?.message
+    )
+    loggingService.postLog(loggerRequest)
+  }
+
 
   private fun getContext(transactionId: String, bppId: String? = null, action: ProtocolContext.Action) =
     contextFactory.create(action = action, transactionId = transactionId, bppId = bppId)

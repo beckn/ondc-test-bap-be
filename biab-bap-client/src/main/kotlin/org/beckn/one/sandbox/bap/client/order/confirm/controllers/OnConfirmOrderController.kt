@@ -59,6 +59,7 @@ class OnConfirmOrderController @Autowired constructor(
         val messageIdArray = messageIds.split(",")
         var okResponseConfirmOrder: MutableList<ClientConfirmResponse> = ArrayList()
           for (messageId in messageIdArray) {
+            val contextProtocol = contextFactory.create(messageId = messageId)
             val bapResult = onPoll(
               messageId,
               protocolClient.getConfirmResponsesCall(messageId),
@@ -75,7 +76,7 @@ class OnConfirmOrderController @Autowired constructor(
                       okResponseConfirmOrder.add(
                         ClientConfirmResponse(
                           error = it.error(),
-                          context = contextFactory.create(messageId = messageId)
+                          context =contextProtocol
                         )
                       )
                     },{
@@ -113,10 +114,11 @@ class OnConfirmOrderController @Autowired constructor(
                 }
               }
               else -> {
+                setLogging(contextProtocol, DatabaseError.NoDataFound)
                 okResponseConfirmOrder.add(
                   ClientConfirmResponse(
                     error = bapResult.body?.error,
-                    context = contextFactory.create(messageId = messageId)
+                    context = contextProtocol
                   )
                 )
               }
@@ -126,7 +128,7 @@ class OnConfirmOrderController @Autowired constructor(
 
           return ResponseEntity.ok(okResponseConfirmOrder)
       } else {
-        setLogging(contextFactory.create(), BppError.AuthenticationError)
+        setLogging(contextFactory.create(), BppError.BadRequestError)
         return mapToErrorResponse(BppError.BadRequestError)
       }
     } else {
@@ -140,7 +142,7 @@ class OnConfirmOrderController @Autowired constructor(
   private fun setLogging(context: ProtocolContext, error: HttpError?) {
     val loggerRequest = loggingFactory.create(messageId = context.messageId,
       transactionId = context.transactionId, contextTimestamp = context.timestamp.toString(),
-      action = context.action, bppId = context.bppId, errorCode = error?.error()?.code,
+      action = ProtocolContext.Action.ON_CANCEL, bppId = context.bppId, errorCode = error?.error()?.code,
       errorMessage = error?.error()?.message
     )
     loggingService.postLog(loggerRequest)

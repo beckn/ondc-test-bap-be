@@ -64,7 +64,7 @@ class CancelOrderController @Autowired constructor(
   private fun setLogging(context: ProtocolContext, error: HttpError?) {
     val loggerRequest = loggingFactory.create(messageId = context.messageId,
       transactionId = context.transactionId, contextTimestamp = context.timestamp.toString(),
-      action = context.action, bppId = context.bppId, errorCode = error?.error()?.code,
+      action = ProtocolContext.Action.CANCEL, bppId = context.bppId, errorCode = error?.error()?.code,
       errorMessage = error?.error()?.message
     )
     loggingService.postLog(loggerRequest)

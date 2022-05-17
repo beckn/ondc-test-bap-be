@@ -12,6 +12,7 @@ import org.beckn.one.sandbox.bap.errors.HttpError
 import org.beckn.one.sandbox.bap.factories.ContextFactory
 import org.beckn.one.sandbox.bap.factories.LoggingFactory
 import org.beckn.protocol.schemas.ProtocolContext
+import org.beckn.protocol.schemas.ProtocolError
 import org.beckn.protocol.schemas.ProtocolOnTrack
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RequestMapping
@@ -24,14 +25,14 @@ class OnTrackPollController(
   onPollService: GenericOnPollService<ProtocolOnTrack, ClientTrackResponse>,
   val contextFactory: ContextFactory,
   val protocolClient: ProtocolClient,
-  loggingFactory: LoggingFactory,
-  loggingService: LoggingService,
+  val loggingFactory: LoggingFactory,
+  val loggingService: LoggingService,
 ) : AbstractOnPollController<ProtocolOnTrack, ClientTrackResponse>(onPollService, contextFactory, loggingFactory, loggingService) {
 
   @RequestMapping("/client/v1/on_track")
   @ResponseBody
   fun onTrack(@RequestParam messageId: String): ResponseEntity<out ClientResponse> =
-    onPoll(messageId, protocolClient.getTrackResponsesCall(messageId), ProtocolContext.Action.ON_SEARCH)
+    onPoll(messageId, protocolClient.getTrackResponsesCall(messageId), ProtocolContext.Action.ON_TRACK)
 
   @RequestMapping("/client/v2/on_track")
   @ResponseBody
@@ -41,17 +42,21 @@ class OnTrackPollController(
       var okResponseOnSupport: MutableList<ClientResponse> = ArrayList()
 
       for (messageId in messageIdArray) {
+       val context =  contextFactory.create(messageId = messageId,action= ProtocolContext.Action.ON_TRACK)
+        setLogging(context, null)
         val bapResult = onPoll(
           messageId,
           protocolClient.getTrackResponsesCall(messageId),
-          ProtocolContext.Action.ON_SEARCH
+          ProtocolContext.Action.ON_TRACK
         )
         when (bapResult.statusCode.value()) {
           200 -> {
             val resultResponse = bapResult.body as ClientTrackResponse
+            setLogging(resultResponse.context, null)
             okResponseOnSupport.add(resultResponse)
           }
           else -> {
+            setLogging(null, bapResult.body?.error)
             okResponseOnSupport.add(
               ClientErrorResponse(
                 context = contextFactory.create(messageId = messageId),
@@ -63,6 +68,7 @@ class OnTrackPollController(
       }
       return ResponseEntity.ok(okResponseOnSupport)
     } else {
+      setLogging(null, BppError.BadRequestError.badRequestError)
       return mapToErrorResponse(BppError.BadRequestError)
     }
   }
@@ -77,4 +83,19 @@ class OnTrackPollController(
         )
       )
     )
+
+  private fun setLogging(context: ProtocolContext?, error: ProtocolError?) {
+    val loggerRequest = if(context != null) {
+      loggingFactory.create(messageId = context.messageId,
+        transactionId = context.transactionId, contextTimestamp = context.timestamp.toString(),
+        action = context.action, bppId = context.bppId, errorCode = error?.code,
+        errorMessage = error?.message
+      )
+    } else {
+      loggingFactory.create(action = ProtocolContext.Action.ON_TRACK, errorCode = error?.code,
+        errorMessage = error?.message)
+    }
+
+    loggingService.postLog(loggerRequest)
+  }
 }

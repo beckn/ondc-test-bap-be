@@ -3,7 +3,9 @@ package org.beckn.one.sandbox.bap.client.accounts.billings.controllers
 import org.beckn.one.sandbox.bap.auth.utils.SecurityUtil
 import org.beckn.one.sandbox.bap.client.shared.dtos.*
 import org.beckn.one.sandbox.bap.client.shared.errors.bpp.BppError
+import org.beckn.one.sandbox.bap.client.shared.services.LoggingService
 import org.beckn.one.sandbox.bap.errors.HttpError
+import org.beckn.one.sandbox.bap.factories.LoggingFactory
 import org.beckn.one.sandbox.bap.message.entities.BillingDetailsDao
 import org.beckn.one.sandbox.bap.message.services.ResponseStorageService
 import org.beckn.protocol.schemas.*
@@ -19,7 +21,9 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 class BillingDetailsController @Autowired constructor(
-  private val responseStorageService: ResponseStorageService<BillingDetailsResponse,BillingDetailsDao>
+  private val responseStorageService: ResponseStorageService<BillingDetailsResponse,BillingDetailsDao>,
+  private val loggingFactory: LoggingFactory,
+  private val loggingService: LoggingService,
 ) {
   val log: Logger = LoggerFactory.getLogger(this::class.java)
 
@@ -28,6 +32,7 @@ class BillingDetailsController @Autowired constructor(
   fun deliveryAddress(@RequestBody request: BillingDetailRequestDto): ResponseEntity<BillingDetailsResponse> {
     val user = SecurityUtil.getSecuredUserDetail()
     if (user == null) {
+      setLogging(null, BppError.AuthenticationError )
      return  mapToErrorResponse(BppError.AuthenticationError)
     } else {
       val billingDao = BillingDetailsDao(
@@ -46,6 +51,8 @@ class BillingDetailsController @Autowired constructor(
         .fold(
           {
             log.error("Error when saving billing response by user Id. Error: {}", it)
+            setLogging(null, it )
+
             ResponseEntity
               .status(it.status())
               .body(
@@ -61,10 +68,29 @@ class BillingDetailsController @Autowired constructor(
           },
           {
             log.info("Saved Billing Info of User {}")
+            setLogging(it.context, null )
             ResponseEntity.ok(it)
           }
         )
     }
+  }
+
+
+  private fun setLogging(context: ProtocolContext?, error: HttpError?) {
+
+    val loggerRequest = if(context != null) {
+      loggingFactory.create(messageId = context.messageId,
+        transactionId = context.transactionId, contextTimestamp = context.timestamp.toString(),
+        action = ProtocolContext.Action.UPDATE, bppId = context.bppId, errorCode = error?.error()?.code,
+        errorMessage = error?.error()?.message
+      )
+    } else {
+      loggingFactory.create(action = ProtocolContext.Action.UPDATE,
+        errorCode = error?.error()?.code,
+        errorMessage = error?.error()?.message)
+    }
+
+    loggingService.postLog(loggerRequest)
   }
 
   private fun mapToErrorResponse(it: HttpError) = ResponseEntity

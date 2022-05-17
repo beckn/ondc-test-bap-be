@@ -38,7 +38,7 @@ class OnOrderStatusPollController(
   @RequestMapping("/client/v1/on_order_status")
   @ResponseBody
   fun onOrderStatusV1(@RequestParam orderId: String): ResponseEntity<out ClientResponse> =
-    onPoll(orderId, protocolClient.getOrderByIdStatusResponsesCall(orderId), ProtocolContext.Action.ON_SEARCH)
+    onPoll(orderId, protocolClient.getOrderByIdStatusResponsesCall(orderId), ProtocolContext.Action.ON_STATUS)
 
   @RequestMapping("/client/v2/on_order_status")
   @ResponseBody
@@ -54,7 +54,7 @@ class OnOrderStatusPollController(
             val bapResult = onPoll(
               messageId,
               protocolClient.getOrderByIdStatusResponsesCall(orderId),
-              ProtocolContext.Action.ON_SEARCH
+              ProtocolContext.Action.ON_STATUS
             )
             when (bapResult.statusCode.value()) {
               200 -> {
@@ -86,9 +86,10 @@ class OnOrderStatusPollController(
                 }
               }
               else -> {
+                setLogging(contextFactory.create(messageId= messageId, action = ProtocolContext.Action.ON_STATUS), BppError.Nack)
                 okResponseOnOrderStatus.add(
                   ClientErrorResponse(
-                    context = contextFactory.create(),
+                    context = contextFactory.create(messageId= messageId, action = ProtocolContext.Action.ON_STATUS),
                     error = bapResult.body?.error
                   )
                 )
@@ -96,10 +97,12 @@ class OnOrderStatusPollController(
             }
           }
         }else{
+          setLogging(contextFactory.create(action = ProtocolContext.Action.ON_STATUS), BppError.AuthenticationError)
           return mapToErrorResponseV2(BppError.AuthenticationError)
         }
         return ResponseEntity.ok(okResponseOnOrderStatus)
     } else {
+      setLogging(contextFactory.create(action = ProtocolContext.Action.ON_STATUS), BppError.BadRequestError)
       return mapToErrorResponseV2(BppError.BadRequestError)
     }
   }

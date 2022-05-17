@@ -2,8 +2,11 @@ package org.beckn.one.sandbox.bap.client.support.controllers
 
 import org.beckn.one.sandbox.bap.client.support.services.SupportService
 import org.beckn.one.sandbox.bap.client.shared.dtos.SupportRequestDto
+import org.beckn.one.sandbox.bap.client.shared.errors.bpp.BppError
+import org.beckn.one.sandbox.bap.client.shared.services.LoggingService
 import org.beckn.one.sandbox.bap.errors.HttpError
 import org.beckn.one.sandbox.bap.factories.ContextFactory
+import org.beckn.one.sandbox.bap.factories.LoggingFactory
 import org.beckn.protocol.schemas.ProtocolAckResponse
 import org.beckn.protocol.schemas.ProtocolContext
 import org.beckn.protocol.schemas.ProtocolError
@@ -17,8 +20,10 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 class SupportController @Autowired constructor(
-    private val contextFactory: ContextFactory,
-    private val supportService: SupportService
+  private val contextFactory: ContextFactory,
+  private val supportService: SupportService,
+  val loggingFactory: LoggingFactory,
+  val loggingService: LoggingService,
 ) {
   val log: Logger = LoggerFactory.getLogger(this::class.java)
 
@@ -36,10 +41,12 @@ class SupportController @Autowired constructor(
     ).fold(
       {
         log.error("Error when getting support for refId: {}", it)
+        setLogging(context, it)
         mapToErrorResponse(it, context)
       },
       {
         log.info("Successfully retrieved support for refId. Message: {}", it)
+        setLogging(context, null)
         ResponseEntity.ok(ProtocolAckResponse(context = context, message = ResponseMessage.ack()))
       }
     )
@@ -64,6 +71,7 @@ class SupportController @Autowired constructor(
         ).fold(
           {
             log.error("Error when getting support for refId: {}", it)
+            setLogging(context, it)
             okResponseSupport.add( ProtocolAckResponse(
               context = context,
               message = it.message(),
@@ -72,22 +80,34 @@ class SupportController @Autowired constructor(
           },
           {
             log.info("Successfully retrieved support for refId. Message: {}", it)
+            setLogging(context, null)
             okResponseSupport.add(ProtocolAckResponse(context = context, message = ResponseMessage.ack()))
           }
         )
       }
       return ResponseEntity.ok(okResponseSupport)
     }else {
+      setLogging(contextFactory.create(action = ProtocolContext.Action.SUPPORT), BppError.BadRequestError)
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .body(
           listOf(
             ProtocolAckResponse(
               context = null, message = ResponseMessage.nack(),
-              error = ProtocolError(code = "400", message = HttpStatus.BAD_REQUEST.reasonPhrase)
+              error = BppError.BadRequestError.badRequestError
+
             )
           )
         )
     }
+  }
+
+  private fun setLogging(context: ProtocolContext, error: HttpError?) {
+    val loggerRequest = loggingFactory.create(messageId = context.messageId,
+      transactionId = context.transactionId, contextTimestamp = context.timestamp.toString(),
+      action = ProtocolContext.Action.SUPPORT, bppId = context.bppId, errorCode = error?.error()?.code,
+      errorMessage = error?.error()?.message
+    )
+    loggingService.postLog(loggerRequest)
   }
 
   private fun mapToErrorResponse(it: HttpError, context: ProtocolContext) = ResponseEntity

@@ -81,11 +81,7 @@ class GetQuoteController @Autowired constructor(
       log.info("`Initiated and returning quotes acknowledgment`. Message: {}", okResponseQuotes)
       return ResponseEntity.ok(okResponseQuotes)
     }else {
-      val loggerRequest = loggingFactory.create(
-        action = SELECT,  errorCode = BppError.BadRequestError.badRequestError.code,
-        errorMessage = BppError.BadRequestError.badRequestError.message
-      )
-      loggingService.postLog(loggerRequest)
+      setLogging(contextFactory.create(action = SELECT), BppError.BadRequestError)
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .body(
           listOf(ProtocolAckResponse(

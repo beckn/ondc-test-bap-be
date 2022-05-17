@@ -11,10 +11,13 @@ import org.beckn.one.sandbox.bap.client.shared.dtos.AccountRequestDto
 import org.beckn.one.sandbox.bap.client.shared.dtos.BillingDetailsResponse
 import org.beckn.one.sandbox.bap.client.shared.dtos.DeliveryAddressResponse
 import org.beckn.one.sandbox.bap.client.shared.errors.bpp.BppError
+import org.beckn.one.sandbox.bap.client.shared.services.LoggingService
 import org.beckn.one.sandbox.bap.errors.HttpError
+import org.beckn.one.sandbox.bap.factories.LoggingFactory
 import org.beckn.one.sandbox.bap.message.entities.AccountDetailsDao
 import org.beckn.one.sandbox.bap.message.entities.BecknResponseDao
 import org.beckn.one.sandbox.bap.message.services.ResponseStorageService
+import org.beckn.protocol.schemas.ProtocolContext
 import org.litote.kmongo.eq
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -26,7 +29,9 @@ import org.springframework.stereotype.Service
 class AccountDetailsServices @Autowired constructor(
   private val addressServices: AddressServices,
   private val billingDetailService: BillingDetailService,
-  private val responseStorageService: ResponseStorageService<AccountDetailsResponse, AccountDetailsDao>
+  private val responseStorageService: ResponseStorageService<AccountDetailsResponse, AccountDetailsDao>,
+  private val loggingFactory: LoggingFactory,
+  private val loggingService: LoggingService,
 ) {
   val log: Logger = LoggerFactory.getLogger(this::class.java)
 
@@ -38,11 +43,14 @@ class AccountDetailsServices @Autowired constructor(
     .fold(
       {
         log.error("Error when finding search response by message id. Error: {}", it)
+        setLogging(null, it)
+
         ResponseEntity
           .status(it.status().value())
           .body(AccountDetailsResponse(userId = null, error = it.error(), context = null))
       },
       {
+        setLogging( it?.context, null)
         return bindBillingAndAccount(it, userId)
 
       }
@@ -74,6 +82,7 @@ class AccountDetailsServices @Autowired constructor(
     try {
       return if (user != null) {
         if (!SecurityUtil.emailValidation(request.userEmail ?: "")) {
+          setLogging(null, BppError.BadRequestError)
           mapToErrorResponse(BppError.BadRequestError)
         } else if (!request.userEmail.equals(user.email, ignoreCase = true)) {
           val updateRequestData =
@@ -84,12 +93,14 @@ class AccountDetailsServices @Autowired constructor(
           updateAccountDetailInDb(requestBody)
         }
       } else {
+        setLogging(null, BppError.AuthenticationError)
         log.error("Error of authentication when updating account info}")
         mapToErrorResponse(BppError.AuthenticationError)
       }
 
     } catch (e: FirebaseAuthException) {
       log.error("Error when updating email in firebase. Error: {}")
+      setLogging(null, BppError.BadRequestError)
       return mapToErrorResponse(BppError.BadRequestError)
     }
 
@@ -101,10 +112,12 @@ class AccountDetailsServices @Autowired constructor(
       .fold(
         {
           log.error("Error when saving account details response. Error: {}", it)
+          setLogging(null, it)
           mapToErrorResponse(it)
         },
         {
           log.info("Updated account details of user {}")
+          setLogging( it.context, null)
           ResponseEntity.ok(it)
         }
       )
@@ -119,4 +132,21 @@ class AccountDetailsServices @Autowired constructor(
         error = it.error()
       )
     )
+
+  private fun setLogging(context: ProtocolContext?, error: HttpError?) {
+
+    val loggerRequest = if(context != null) {
+      loggingFactory.create(messageId = context.messageId,
+        transactionId = context.transactionId, contextTimestamp = context.timestamp.toString(),
+        action = ProtocolContext.Action.UPDATE, bppId = context.bppId, errorCode = error?.error()?.code,
+        errorMessage = error?.error()?.message
+      )
+    } else {
+      loggingFactory.create(action = ProtocolContext.Action.UPDATE,
+        errorCode = error?.error()?.code,
+        errorMessage = error?.error()?.message)
+    }
+
+    loggingService.postLog(loggerRequest)
+  }
 }

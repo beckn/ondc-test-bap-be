@@ -54,7 +54,7 @@ class OnInitOrderController @Autowired constructor(
       var okResponseInit: MutableList<ClientInitResponse> = ArrayList()
 
         for (messageId in messageIdArray) {
-          val context = contextFactory.create(messageId = messageId)
+          val context = contextFactory.create(messageId = messageId, action = ProtocolContext.Action.ON_INIT)
           setLogging(context, null)
           onPollService.onPoll(context,
             protocolClient.getInitResponsesCall(messageId))
@@ -76,19 +76,15 @@ class OnInitOrderController @Autowired constructor(
         log.info("`Initiated and returning onInit acknowledgment`. Message: {}", okResponseInit)
         return ResponseEntity.ok(okResponseInit)
       } else {
-      val loggerRequest = loggingFactory.create(
-        action = ProtocolContext.Action.ON_INIT,  errorCode = BppError.BadRequestError.badRequestError.code,
-        errorMessage = BppError.BadRequestError.badRequestError.message
-      )
-      loggingService.postLog(loggerRequest)
-        return mapToErrorResponse(BppError.BadRequestError)
+      setLogging(contextFactory.create(action =  ProtocolContext.Action.ON_INIT), BppError.BadRequestError)
+      return mapToErrorResponse(BppError.BadRequestError)
       }
     }
 
   private fun setLogging(context: ProtocolContext, error: HttpError?) {
     val loggerRequest = loggingFactory.create(messageId = context.messageId,
       transactionId = context.transactionId, contextTimestamp = context.timestamp.toString(),
-      action = context.action, bppId = context.bppId, errorCode = error?.error()?.code,
+      action = ProtocolContext.Action.ON_INIT, bppId = context.bppId, errorCode = error?.error()?.code,
       errorMessage = error?.error()?.message
     )
     loggingService.postLog(loggerRequest)

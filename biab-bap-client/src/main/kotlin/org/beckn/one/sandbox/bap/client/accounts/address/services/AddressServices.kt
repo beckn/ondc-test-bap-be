@@ -4,12 +4,15 @@ import arrow.core.Either
 import org.beckn.one.sandbox.bap.auth.utils.SecurityUtil
 import org.beckn.one.sandbox.bap.client.shared.dtos.DeliveryAddressRequestDto
 import org.beckn.one.sandbox.bap.client.shared.dtos.DeliveryAddressResponse
+import org.beckn.one.sandbox.bap.client.shared.services.LoggingService
 import org.beckn.one.sandbox.bap.errors.HttpError
 import org.beckn.one.sandbox.bap.errors.database.DatabaseError
+import org.beckn.one.sandbox.bap.factories.LoggingFactory
 import org.beckn.one.sandbox.bap.message.entities.AddDeliveryAddressDao
 import org.beckn.one.sandbox.bap.message.mappers.GenericResponseMapper
 import org.beckn.one.sandbox.bap.message.repositories.BecknResponseRepository
 import org.beckn.one.sandbox.bap.message.services.ResponseStorageService
+import org.beckn.protocol.schemas.ProtocolContext
 import org.litote.kmongo.eq
 import org.litote.kmongo.newId
 import org.litote.kmongo.setTo
@@ -24,8 +27,9 @@ import org.springframework.stereotype.Service
 class AddressServices @Autowired constructor(
   private val addressRepository: BecknResponseRepository<AddDeliveryAddressDao>,
   private val responseStorageService: ResponseStorageService<DeliveryAddressResponse, AddDeliveryAddressDao>,
-  private val mapper: GenericResponseMapper<DeliveryAddressResponse, AddDeliveryAddressDao>
-
+  private val mapper: GenericResponseMapper<DeliveryAddressResponse, AddDeliveryAddressDao>,
+  private val loggingFactory: LoggingFactory,
+  private val loggingService: LoggingService,
 ) {
   val log: Logger = LoggerFactory.getLogger(this::class.java)
 
@@ -76,13 +80,33 @@ class AddressServices @Autowired constructor(
     .fold(
       {
         log.error("Error when finding search response by message id. Error: {}", it)
+        setLogging(null, it)
         mapToErrorResponse(it)
       },
       {
         log.info("Found responses for address {}", userId)
+        setLogging(it.firstOrNull()?.context, null)
         ResponseEntity.ok(it)
       }
     )
+
+
+  private fun setLogging(context: ProtocolContext?, error: HttpError?) {
+
+    val loggerRequest = if(context != null) {
+      loggingFactory.create(messageId = context.messageId,
+        transactionId = context.transactionId, contextTimestamp = context.timestamp.toString(),
+        action = ProtocolContext.Action.ON_UPDATE, bppId = context.bppId, errorCode = error?.error()?.code,
+        errorMessage = error?.error()?.message
+      )
+    } else {
+      loggingFactory.create(action = ProtocolContext.Action.ON_UPDATE,
+        errorCode = error?.error()?.code,
+        errorMessage = error?.error()?.message)
+    }
+
+    loggingService.postLog(loggerRequest)
+  }
 
   private fun mapToErrorResponse(it: HttpError) = ResponseEntity
     .status(it.status())

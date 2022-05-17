@@ -1,9 +1,9 @@
 package org.beckn.one.sandbox.bap.client.discovery.controllers
 
-import arrow.core.flatMap
 import org.beckn.one.sandbox.bap.client.discovery.services.SearchService
 import org.beckn.one.sandbox.bap.client.shared.dtos.SearchRequestDto
 import org.beckn.one.sandbox.bap.client.shared.services.LoggingService
+import org.beckn.one.sandbox.bap.errors.HttpError
 import org.beckn.one.sandbox.bap.factories.ContextFactory
 import org.beckn.one.sandbox.bap.factories.LoggingFactory
 import org.beckn.protocol.schemas.ProtocolAckResponse
@@ -31,20 +31,18 @@ class SearchController @Autowired constructor(
   @ResponseBody
   fun searchV1(@RequestBody request: SearchRequestDto): ResponseEntity<ProtocolAckResponse> {
     val protocolContext =
-      contextFactory.create(transactionId = request.context.transactionId, bppId = request.context.bppId, action = ProtocolContext.Action.SEARCH)
-    val loggerRequest = loggingFactory.create(messageId = protocolContext.messageId,
-      transactionId = protocolContext.transactionId, contextTimestamp = protocolContext.timestamp.toString(),
-      action = protocolContext.action, bppId = protocolContext.bppId
-    )
-    loggingService.postLog(loggerRequest)
+      contextFactory.create(
+        transactionId = request.context.transactionId,
+        bppId = request.context.bppId,
+        action = ProtocolContext.Action.SEARCH
+      )
+    setLogging(protocolContext, null)
+
     return searchService.search(protocolContext, request.message.criteria)
       .fold(
         {
           log.error("Error during search. Error: {}", it)
-          val loggerRequest = loggingFactory.create(messageId = protocolContext.messageId, transactionId = protocolContext.transactionId, contextTimestamp = protocolContext.timestamp.toString(),
-            action = protocolContext.action, bppId = protocolContext.bppId, errorMessage = it.error().message, errorCode = it.error().code.toString()
-          )
-          loggingService.postLog(loggerRequest)
+          setLogging(protocolContext, it)
           ResponseEntity
             .status(it.status().value())
             .body(ProtocolAckResponse(protocolContext, it.message(), it.error()))
@@ -54,5 +52,23 @@ class SearchController @Autowired constructor(
           ResponseEntity.ok(ProtocolAckResponse(protocolContext, ResponseMessage.ack()))
         }
       )
+  }
+
+
+  private fun setLogging(context: ProtocolContext?, error: HttpError?) {
+
+    val loggerRequest = if(context != null) {
+      loggingFactory.create(messageId = context.messageId,
+        transactionId = context.transactionId, contextTimestamp = context.timestamp.toString(),
+        action = context.action, bppId = context.bppId, errorCode = error?.error()?.code,
+        errorMessage = error?.error()?.message
+      )
+    } else {
+      loggingFactory.create(action = ProtocolContext.Action.SEARCH,
+        errorCode = error?.error()?.code,
+        errorMessage = error?.error()?.message)
+    }
+
+    loggingService.postLog(loggerRequest)
   }
 }
