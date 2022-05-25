@@ -19,7 +19,7 @@ database:
     name: ${DATABASE_NAME:bap}
 
 registry_service:
-  url: ${REGISTRY_URL:https://registry.becknprotocol.io/subscribers/}
+  url: ${REGISTRY_URL:https://pilot-gateway-1.beckn.nsdl.co.in/}
   retry:
     max_attempts: ${REGISTRY_RETRY_MAX_ATTEMPTS:3}
     initial_interval_in_millis: ${REGISTRY_RETRY_INTERVAL:1000}
@@ -29,7 +29,7 @@ registry_service:
     read_in_seconds: ${REGISTRY_READ_TIMEOUT:10}
     write_in_seconds: ${REGISTRY_WRITE_TIMEOUT:10}
 bpp_registry_service:
-  url: ${BPP_URL:https://registry.becknprotocol.io/subscribers/}
+  url: ${BPP_URL:https://pilot-gateway-1.beckn.nsdl.co.in/}
 
 context:
   domain: ${BAP_DOMAIN:nic2004:52110}
