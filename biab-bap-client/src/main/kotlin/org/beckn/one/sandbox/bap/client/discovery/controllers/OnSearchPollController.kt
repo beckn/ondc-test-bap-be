@@ -28,7 +28,8 @@ class OnSearchPollController @Autowired constructor(
 
   @RequestMapping("/client/v1/on_search")
   @ResponseBody
-  fun onSearchV1(
-    @RequestParam messageId: String
-  ): ResponseEntity<out ClientResponse> = onPoll(messageId, protocolClient.getSearchResponsesCall(messageId), ProtocolContext.Action.ON_SEARCH)
+  fun onSearchV1(@RequestParam messageId: String,
+                 @RequestParam providerName: String?,
+                 @RequestParam categoryName: String?): ResponseEntity<out ClientResponse> = onPoll(messageId,
+    protocolClient.getSearchResponsesCall(messageId, providerName, categoryName), ProtocolContext.Action.ON_SEARCH)
 }

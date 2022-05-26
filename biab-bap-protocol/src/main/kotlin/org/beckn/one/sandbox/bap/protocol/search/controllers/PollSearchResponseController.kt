@@ -22,6 +22,6 @@ class PollSearchResponseController @Autowired constructor(
 
   @GetMapping("protocol/response/v1/on_search")
   @ResponseBody
-  fun getSearchResponses(messageId: String) = findResponses(messageId, ProtocolContext.Action.ON_SEARCH)
+  fun getSearchResponses(messageId: String, providerName: String?, categoryName: String?) = findResponsesForSearch(messageId, providerName, categoryName, ProtocolContext.Action.ON_SEARCH)
 
 }

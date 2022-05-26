@@ -7,7 +7,9 @@ import retrofit2.http.Query
 
 interface ProtocolClient {
   @GET("protocol/response/v1/on_search")
-  fun getSearchResponsesCall(@Query("messageId") messageId: String): Call<List<ProtocolOnSearch>>
+  fun getSearchResponsesCall(@Query("messageId") messageId: String,
+                             @Query("providerName") providerName: String?,
+                             @Query("categoryName") categoryName: String?): Call<List<ProtocolOnSearch>>
 
   @GET("protocol/response/v1/on_select")
   fun getSelectResponsesCall(@Query("messageId") messageId: String): Call<List<ProtocolOnSelect>>

@@ -78,4 +78,35 @@ open class AbstractPollForResponseController<Protocol: ProtocolResponse>(
         ResponseEntity.ok(it)
       }
     )
+
+  fun findResponsesForSearch(
+    messageId: String,
+    providerName: String?,
+    categoryName: String?,
+    action: ProtocolContext.Action
+  ): ResponseEntity<List<ProtocolResponse>> = responseService
+    .findSearchCatalog(messageId, providerName, categoryName)
+    .fold(
+      {
+        val protocolContext  = contextFactory.create(messageId = messageId)
+        val loggerRequest = loggingFactory.create(messageId = protocolContext.messageId, transactionId = protocolContext.transactionId, contextTimestamp = protocolContext.timestamp.toString(),
+          action = action, bppId = protocolContext.bppId, errorMessage = it.error().message, errorCode = it.error().code
+        )
+        loggingService.postLog(loggerRequest)
+        log.error("Error when finding search response by message id. Error: {}", it)
+        ResponseEntity
+          .status(it.status().value())
+          .body(listOf(ProtocolErrorResponse(context = protocolContext, error = it.error())))
+      },
+      {
+        val protocolContext  = contextFactory.create(messageId = messageId)
+        val loggerRequest = loggingFactory.create(messageId = protocolContext.messageId, transactionId = protocolContext.transactionId, contextTimestamp = protocolContext.timestamp.toString(),
+          action = action, bppId = protocolContext.bppId
+        )
+        loggingService.postLog(loggerRequest)
+
+        log.info("Found responses for message {}", messageId)
+        ResponseEntity.ok(it)
+      }
+    )
 }

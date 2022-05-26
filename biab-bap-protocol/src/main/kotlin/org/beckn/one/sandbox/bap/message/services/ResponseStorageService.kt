@@ -13,6 +13,7 @@ interface ResponseStorageService<Proto : ProtocolResponse> {
   fun save(protoResponse: Proto): Either<DatabaseError.OnWrite, Proto>
   fun findByMessageId(id: String): Either<DatabaseError.OnRead, List<Proto>>
   fun findByOrderId(id: String): Either<DatabaseError.OnRead, List<Proto>>
+  fun findSearchCatalog(id: String, providerName: String?, categoryName: String?): Either<DatabaseError.OnRead, List<Proto>>
 }
 
 class ResponseStorageServiceImpl<Proto : ProtocolResponse, Entity : BecknResponseDao> constructor(
@@ -36,7 +37,9 @@ class ResponseStorageServiceImpl<Proto : ProtocolResponse, Entity : BecknRespons
       )
 
   override fun findByMessageId(id: String): Either<DatabaseError.OnRead, List<Proto>> = Either
-    .catch { responseRepo.findByMessageId(id) }
+    .catch {
+      responseRepo.findByMessageId(id)
+    }
     .map { toSchema(it) }
     .mapLeft { e ->
       log.error("Exception while fetching search response", e)
@@ -54,5 +57,21 @@ class ResponseStorageServiceImpl<Proto : ProtocolResponse, Entity : BecknRespons
     log.error("Exception while fetching search response", e)
     DatabaseError.OnRead
   }
+
+  override fun findSearchCatalog(id: String, providerName: String?, categoryName: String?): Either<DatabaseError.OnRead, List<Proto>> = Either
+    .catch {
+      if (providerName != null) {
+        responseRepo.findByProviderName(id, providerName)
+      } else if (categoryName != null) {
+        responseRepo.findByCategoryName(id = id, categoryName= categoryName)
+      } else {
+        responseRepo.findByMessageId(id)
+      }
+    }
+    .map { toSchema(it) }
+    .mapLeft { e ->
+      log.error("Exception while fetching search response", e)
+      DatabaseError.OnRead
+    }
 
 }
