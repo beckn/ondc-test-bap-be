@@ -33,7 +33,10 @@ object Cryptic {
   ): Boolean {
     val signer = getEd25519SignerForVerification(b64PublicKey)
     val formattedRequest = formatBodyForSigning(authorization.created, authorization.expires, requestBody)
-    log.info("Signature verification Signing body : $formattedRequest")
+    if (log.isInfoEnabled){
+      log.info("RequestBody: $requestBody")
+      log.info("formattedRequest: $formattedRequest")
+    }
     signer.update(formattedRequest.toByteArray(), 0, formattedRequest.length)
     return signer.verifySignature(Base64.getDecoder().decode(authorization.signature))
   }
