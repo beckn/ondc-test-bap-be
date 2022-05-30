@@ -31,9 +31,9 @@ class OnSearchPollController @Autowired constructor(
 
   @RequestMapping("/client/v1/on_search")
   @ResponseBody
-  fun onSearchV1(@RequestParam("message_id") messageId: String,
-                 @RequestParam("provider_name") providerName : String?,
-                 @RequestParam("category_name") categoryName: String?): ResponseEntity<out ClientResponse> {
+  fun onSearchV1(@RequestParam messageId: String,
+                 @RequestParam providerName : String?,
+                 @RequestParam categoryName: String?): ResponseEntity<out ClientResponse> {
     log.info("on Search for client layer : $messageId, $providerName, $categoryName")
    return onPoll(
       messageId,
