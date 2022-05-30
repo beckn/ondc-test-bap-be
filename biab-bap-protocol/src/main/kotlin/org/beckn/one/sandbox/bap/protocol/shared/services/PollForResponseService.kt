@@ -26,7 +26,7 @@ open class PollForResponseService<Protocol: ProtocolResponse> constructor(
   }
 
   open fun findSearchCatalog(messageId: String, providerName: String?, categoryName: String?): Either<HttpError, List<Protocol>> {
-    log.info("Got fetch request for order id: {}", messageId)
+    log.info("Got fetch request for search catalog: {}, $messageId, $providerName, $categoryName")
     return responseStorageService.findSearchCatalog(messageId, providerName, categoryName)
   }
 

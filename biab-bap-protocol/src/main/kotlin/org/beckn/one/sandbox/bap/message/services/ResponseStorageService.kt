@@ -61,10 +61,13 @@ class ResponseStorageServiceImpl<Proto : ProtocolResponse, Entity : BecknRespons
   override fun findSearchCatalog(id: String, providerName: String?, categoryName: String?): Either<DatabaseError.OnRead, List<Proto>> = Either
     .catch {
       if (providerName != null) {
+        log.info("Polling Search By provider name initiated")
         responseRepo.findByProviderName(id, providerName)
       } else if (categoryName != null) {
+        log.info("Polling Search By category name initiated")
         responseRepo.findByCategoryName(id = id, categoryName= categoryName)
       } else {
+        log.info("Polling Search By item initiated")
         responseRepo.findByMessageId(id)
       }
     }

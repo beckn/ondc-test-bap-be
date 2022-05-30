@@ -14,7 +14,7 @@ object Util {
   fun getBaseUri(baseUrl: String): String {
     return if (baseUrl.endsWith("/", true)) baseUrl else "$baseUrl/"
   }
-  
+
   fun String.snakeToUpperCamelCase(): String {
     return this.snakeToLowerCamelCase().capitalize()
   }
