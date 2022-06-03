@@ -143,4 +143,4 @@ logging_service:
   url: ${LOGGING_URL:https://logging.becknprotocol.io/}
 
 firebase:
-  config: ${FIREBASE_CONFIG:firebase_config_dev.json}
+  config: ${FIREBASE_CONFIG:firebase_config_prod.json}
