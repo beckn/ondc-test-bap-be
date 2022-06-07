@@ -10,6 +10,7 @@ import org.beckn.one.sandbox.bap.client.external.provider.BppClient
 import org.beckn.one.sandbox.bap.client.external.provider.BppClientFactory
 import org.beckn.one.sandbox.bap.client.shared.dtos.OrderDto
 import org.beckn.one.sandbox.bap.client.shared.errors.bpp.BppError
+import org.beckn.one.sandbox.bap.factories.UuidFactory
 import org.beckn.protocol.schemas.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -19,7 +20,8 @@ import retrofit2.Response
 
 @Service
 class BppConfirmService @Autowired constructor(
-  private val bppServiceClientFactory: BppClientFactory
+  private val bppServiceClientFactory: BppClientFactory,
+  private val uuidFactory: UuidFactory
 ) {
   private val log: Logger = LoggerFactory.getLogger(BppConfirmService::class.java)
 
@@ -55,6 +57,7 @@ class BppConfirmService @Autowired constructor(
       context = context,
       ProtocolConfirmRequestMessage(
         order = ProtocolOrder(
+          id = uuidFactory.create(),
           provider = order.items?.first()?.provider?.let {
             ProtocolSelectMessageSelectedProvider(
               id = it?.id,
