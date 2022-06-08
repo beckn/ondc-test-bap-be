@@ -49,8 +49,7 @@ class InitOrderService @Autowired constructor(
       .flatMap {
         val loggerRequest = loggingFactory.create(messageId = context.messageId,
           transactionId = context.transactionId, contextTimestamp = context.timestamp.toString(),
-          action = context.action, bppId = context.bppId, subscriberId= it.first().subscriber_id,
-          subscriberType = SubscriberDto.Type.LREG.name
+          action = context.action, bppId = context.bppId
         )
         loggingService.postLog(loggerRequest)
 

@@ -3,6 +3,7 @@ package org.beckn.one.sandbox.bap.client.shared.services
 import arrow.core.Either
 import arrow.core.Either.Left
 import arrow.core.Either.Right
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.beckn.one.sandbox.bap.client.external.isInternalServerError
 import org.beckn.one.sandbox.bap.client.external.logging.LoggingDto
 import org.beckn.one.sandbox.bap.client.external.logging.LoggingRequest
@@ -31,16 +32,17 @@ class LoggingService(
     request: LoggingRequest
   ): Either<HttpError, LoggingDto> {
     return Either.catch {
-      log.info("Looking up subscribers: {}", request)
+     val json = jacksonObjectMapper().writeValueAsString(request)
+      log.info("Logging request: {}", json)
       val httpResponse = client.logging(request).execute()
-      log.info("Lookup subscriber response. Status: {}, Body: {}", httpResponse.code(), httpResponse.body())
-      return when {
+      log.info("Logging response. Status: {}, Body: {}", httpResponse.code(), httpResponse.body())
+        return when {
         httpResponse.isInternalServerError() -> Left(Internal)
         noLoggingFound(httpResponse) -> Left(BppError.NullResponse)
         else -> Right(httpResponse.body()!!)
       }
     }.mapLeft {
-      log.error("Error when looking up subscribers", it)
+      log.error("Error when logging", it)
       Internal
     }
   }

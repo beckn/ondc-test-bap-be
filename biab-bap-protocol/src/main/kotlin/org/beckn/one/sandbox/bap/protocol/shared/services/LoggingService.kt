@@ -2,6 +2,7 @@ package org.beckn.one.sandbox.bap.protocol.shared.services
 
 import arrow.core.Either
 import arrow.core.Either.Right
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.beckn.one.sandbox.bap.errors.HttpError
 import org.beckn.one.sandbox.bap.errors.registry.RegistryLookupError
 import org.beckn.one.sandbox.bap.protocol.external.logging.LoggingDto
@@ -27,7 +28,8 @@ class LoggingService(
     request: LoggingRequest
   ): Either<HttpError, LoggingDto> {
     return Either.catch {
-      log.info("Looking up Logging: {}", request)
+      val jsonRequestBody = jacksonObjectMapper().writeValueAsString(request)
+      log.info("Logging request: {}", jsonRequestBody)
       val httpResponse = client.logging(request).execute()
       log.info("Logging response. Status: {}, Body: {}", httpResponse.code(), httpResponse.body())
       return when {

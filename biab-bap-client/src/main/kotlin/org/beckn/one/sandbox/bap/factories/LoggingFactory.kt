@@ -15,6 +15,8 @@ class LoggingFactory @Autowired constructor(
   @Value("\${context.country}") private val country: String,
   @Value("\${context.bap_id}") private val bapId: String,
   @Value("\${context.bap_uri}") private val bapUrl: String,
+  @Value("\${logging_service.subscriber-type}") private val subscriberBapType: String,
+  @Value("\${logging_service.subscriber-id}") private val subscriberBapId: String,
   private val uuidFactory: UuidFactory,
   private val clock: Clock = Clock.systemUTC()
 ) {
@@ -26,8 +28,8 @@ class LoggingFactory @Autowired constructor(
     contextTimestamp: String? = null,
     contextKey: String?= null,
     contextTTL: String?= null,
-    subscriberType : String?= null,
-    subscriberId: String?= null,
+    subscriberType : String = subscriberBapType,
+    subscriberId: String?= subscriberBapId,
     errorCode: String?= null,
     errorMessage: String?= null
   ) = LoggingRequest(

@@ -37,9 +37,10 @@ class SearchService @Autowired constructor(
         .lookupBppById(context.bppId!!)
         .flatMap {
           log.error("Error during search. Error: {}", it)
-          val loggerRequest = loggingFactory.create(messageId = context.messageId, transactionId = context.transactionId,
+          val loggerRequest = loggingFactory.create(messageId = context.messageId,
+            transactionId = context.transactionId,
             contextTimestamp = context.timestamp.toString(),
-            action = context.action, bppId = context.bppId,subscriberId = it.first().subscriber_id, subscriberType = SubscriberDto.Type.LREG.name
+            action = context.action, bppId = context.bppId
           )
           loggingService.postLog(loggerRequest)
           bppSearchService.search(it.first().subscriber_url, context, criteria)
@@ -50,7 +51,7 @@ class SearchService @Autowired constructor(
       .flatMap {
         val loggerRequest = loggingFactory.create(messageId = context.messageId, transactionId = context.transactionId,
           contextTimestamp = context.timestamp.toString(),
-          action = context.action, bppId = context.bppId,subscriberId = it.first().subscriber_id, subscriberType = SubscriberDto.Type.BG.name
+          action = context.action, bppId = context.bppId
         )
         loggingService.postLog(loggerRequest)
 
