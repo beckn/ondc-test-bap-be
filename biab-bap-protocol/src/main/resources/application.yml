@@ -54,3 +54,5 @@ management:
           'configprops, env, health, loggers, metrics, mappings, httptrace'
 logging_service:
   url: ${LOGGING_URL:https://logging.becknprotocol.io/}
+  subscriber-type: ${SUBSCRIBER_TYPE:bap}
+  subscriber-id: ${SUBSCRIBER_ID:testbap.becknprotocol.io}
