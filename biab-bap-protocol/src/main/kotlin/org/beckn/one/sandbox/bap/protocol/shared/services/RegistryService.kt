@@ -31,11 +31,11 @@ class RegistryService(
   private val log: Logger = LoggerFactory.getLogger(RegistryService::class.java)
 
   fun lookupGateways(): Either<RegistryLookupError, List<SubscriberDto>> {
-    return lookup(registryServiceClient, lookupRequest(subscriberType = Subscriber.Type.BG))
+    return lookup(registryServiceClient, lookupRequest(subscriberType = Subscriber.Type.BG, key = null))
   }
 
-  fun lookupBppById(id: String): Either<RegistryLookupError, List<SubscriberDto>> {
-    return lookup(bppRegistryServiceClient, lookupRequest(subscriberType = Subscriber.Type.BPP, subscriberId = id))
+  fun lookupBppById(id: String, key: String?): Either<RegistryLookupError, List<SubscriberDto>> {
+    return lookup(bppRegistryServiceClient, lookupRequest(subscriberType = Subscriber.Type.BPP, subscriberId = id, key= key))
   }
 
   private fun lookup(
@@ -57,12 +57,13 @@ class RegistryService(
     }
   }
 
-  private fun lookupRequest(subscriberType: Subscriber.Type, subscriberId: String? = null) = SubscriberLookupRequest(
+  private fun lookupRequest(subscriberType: Subscriber.Type, subscriberId: String? = null, key: String?) = SubscriberLookupRequest(
     subscriber_id = subscriberId,
     type = subscriberType,
     domain = domain,
-    city = city,
-    country = country
+    country = country,
+    city = if (key.isNullOrEmpty()) city else null,
+    unique_key_id = key
   )
 
   private fun noSubscribersFound(httpResponse: Response<List<SubscriberDto>>) =
