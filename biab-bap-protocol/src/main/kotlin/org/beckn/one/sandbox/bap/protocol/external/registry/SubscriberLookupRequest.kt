@@ -7,5 +7,6 @@ data class SubscriberLookupRequest(
   val type: Subscriber.Type,
   val domain: String,
   val country: String,
-  val city: String
+  val city: String?,
+  val unique_key_id: String?
 )

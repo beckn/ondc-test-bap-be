@@ -77,7 +77,7 @@ class RegistryServiceRetrySpec @Autowired constructor(
           registry = MockNetwork.registryBppLookupApi
         )
 
-        val response = registryService.lookupBppById(bpp.subscriber_id)
+        val response = registryService.lookupBppById(bpp.subscriber_id, null)
 
         response
           .fold(
@@ -101,7 +101,7 @@ class RegistryServiceRetrySpec @Autowired constructor(
           registry = MockNetwork.registryBppLookupApi
         )
 
-        val response = registryService.lookupBppById(bpp.subscriber_id)
+        val response = registryService.lookupBppById(bpp.subscriber_id, null)
 
         response shouldBeLeft RegistryLookupError.Internal
         verifyRegistryLookupApiIsInvoked(3, registry = MockNetwork.registryBppLookupApi)
