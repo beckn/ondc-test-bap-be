@@ -84,7 +84,7 @@ class RegistryService(
     subscriber_id = subscriberId,
     type = subscriberType,
     domain = domain,
-    city = city,
+    city = if (subscriberType === Subscriber.Type.BPP) null else city,
     country = country
   )
 
