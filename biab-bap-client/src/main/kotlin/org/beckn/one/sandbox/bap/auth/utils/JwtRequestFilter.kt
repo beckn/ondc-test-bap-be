@@ -19,7 +19,7 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 
-@Component
+//@Component
 class JwtRequestFilter : OncePerRequestFilter() {
   @Autowired
   var securityService: SecurityService? = null

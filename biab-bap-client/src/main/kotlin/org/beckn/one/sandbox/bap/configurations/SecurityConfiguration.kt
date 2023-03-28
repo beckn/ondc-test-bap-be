@@ -72,12 +72,6 @@ class SecurityConfiguration : WebSecurityConfigurerAdapter() {
     @Throws(Exception::class)
     override fun configure(http: HttpSecurity) {
         http.cors().configurationSource(corsConfigurationSource()).and().csrf().disable().formLogin().disable()
-            .httpBasic().disable().exceptionHandling().authenticationEntryPoint(restAuthenticationEntryPoint())
-            .and().authorizeRequests()
-            .antMatchers("/client/v1/").permitAll()
-            .antMatchers(*restSecProps?.protectedActions!!.toTypedArray()).authenticated()
-            .and()
-            .addFilterBefore(tokenAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
-            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            .httpBasic().disable().exceptionHandling()
     }
 }
