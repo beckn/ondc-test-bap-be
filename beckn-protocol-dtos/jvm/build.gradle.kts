@@ -20,8 +20,8 @@ buildscript {
 
 plugins {
   id("jacoco")
-  kotlin("jvm") version "1.4.31"
-  kotlin("kapt") version "1.4.31"
+  kotlin("jvm") version "1.8.10"
+  kotlin("kapt") version "1.8.10"
   id("maven-publish")
   id("org.shipkit.shipkit-auto-version") version "1.1.20"
 }
