@@ -25,6 +25,16 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
+import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider
+import software.amazon.awssdk.core.sync.RequestBody
+import software.amazon.awssdk.profiles.ProfileFile
+import software.amazon.awssdk.regions.Region
+import software.amazon.awssdk.services.s3.S3Client
+import software.amazon.awssdk.services.s3.model.GetUrlRequest
+import software.amazon.awssdk.services.s3.model.PutObjectRequest
+import java.net.URL
+import java.nio.file.Paths
 
 @RestController
 class OnConfirmOrderController @Autowired constructor(
@@ -96,6 +106,21 @@ class OnConfirmOrderController @Autowired constructor(
                           )
                         }, {
                           resultResponse.parentOrderId = orderDao.parentOrderId
+                          val credentialsFile = Paths.get(System.getProperty("user.dir")+"\\src\\main\\resources\\credentials")
+                          val credentialsProvider: AwsCredentialsProvider = ProfileCredentialsProvider.builder()
+                            .profileName("dev")
+                            .profileFile(ProfileFile.builder().content(credentialsFile).type(ProfileFile.Type.CREDENTIALS).build())
+                            .build()
+
+
+                          val s3Client = S3Client.builder()
+                            .region(Region.AP_SOUTH_1)
+                            .credentialsProvider(credentialsProvider)
+                            .build()
+                          val req = PutObjectRequest.builder().bucket("s3-order-json-test").key(orderDao.transactionId).build()
+                          s3Client.putObject(req, RequestBody.fromString(resultResponse.message.order.toString()))
+                          val url: URL = s3Client.utilities().getUrl(GetUrlRequest.builder().bucket("s3-order-json-test").key(orderDao.transactionId).build())
+                          resultResponse.order_url= url.toString()
                           okResponseConfirmOrder.add(resultResponse)
                         }
                       )

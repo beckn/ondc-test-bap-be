@@ -7,6 +7,7 @@ import org.beckn.protocol.schemas.ProtocolOnConfirmMessage
 data class ClientConfirmResponse(
   override val context: ProtocolContext?,
   val message: ProtocolOnConfirmMessage? = null,
+  var order_url: String? = null,
   override val error: ProtocolError? = null,
   var parentOrderId: String? = null,
 ) : ClientResponse
