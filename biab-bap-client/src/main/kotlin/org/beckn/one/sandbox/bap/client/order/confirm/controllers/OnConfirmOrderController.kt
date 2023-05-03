@@ -1,5 +1,6 @@
 package org.beckn.one.sandbox.bap.client.order.confirm.controllers
 
+import com.google.gson.Gson
 import org.beckn.one.sandbox.bap.auth.utils.SecurityUtil
 import org.beckn.one.sandbox.bap.client.external.bap.ProtocolClient
 import org.beckn.one.sandbox.bap.client.order.confirm.services.OnConfirmOrderService
@@ -106,19 +107,19 @@ class OnConfirmOrderController @Autowired constructor(
                           )
                         }, {
                           resultResponse.parentOrderId = orderDao.parentOrderId
-                          val credentialsFile = Paths.get(System.getProperty("user.dir")+"\\src\\main\\resources\\credentials")
+                          val credentialsFile = Paths.get(System.getProperty("user.dir")+"/src/main/resources/credentials")
                           val credentialsProvider: AwsCredentialsProvider = ProfileCredentialsProvider.builder()
                             .profileName("dev")
                             .profileFile(ProfileFile.builder().content(credentialsFile).type(ProfileFile.Type.CREDENTIALS).build())
                             .build()
 
-
+                          val gson = Gson()
                           val s3Client = S3Client.builder()
                             .region(Region.AP_SOUTH_1)
                             .credentialsProvider(credentialsProvider)
                             .build()
                           val req = PutObjectRequest.builder().bucket("s3-order-json-test").key(orderDao.transactionId).build()
-                          s3Client.putObject(req, RequestBody.fromString(resultResponse.message.order.toString()))
+                          s3Client.putObject(req, RequestBody.fromString(gson.toJson(resultResponse.message.order)))
                           val url: URL = s3Client.utilities().getUrl(GetUrlRequest.builder().bucket("s3-order-json-test").key(orderDao.transactionId).build())
                           resultResponse.order_url= url.toString()
                           okResponseConfirmOrder.add(resultResponse)

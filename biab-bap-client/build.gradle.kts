@@ -65,6 +65,7 @@ dependencies {
   implementation("com.google.firebase:firebase-admin:8.1.0")
   implementation("org.litote.kmongo:kmongo:4.2.8")
   implementation("software.amazon.awssdk:s3:2.20.26")
+  implementation("com.google.code.gson:gson:2.8.5")
 
   testImplementation("org.springframework.boot:spring-boot-starter-test")
   testImplementation("io.kotest:kotest-runner-junit5:4.4.3")
