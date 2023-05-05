@@ -7,5 +7,6 @@ import org.beckn.protocol.schemas.ProtocolOnOrderStatusMessage
 data class ClientOrderStatusResponse(
   override val context: ProtocolContext,
   val message: ProtocolOnOrderStatusMessage? = null,
+  var order_url: String? = null,
   override val error: ProtocolError? = null
 ) : ClientResponse

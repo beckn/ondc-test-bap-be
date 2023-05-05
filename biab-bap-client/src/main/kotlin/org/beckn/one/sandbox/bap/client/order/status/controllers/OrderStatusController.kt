@@ -1,6 +1,7 @@
 package org.beckn.one.sandbox.bap.client.order.status.controllers
 
 import org.beckn.one.sandbox.bap.client.order.status.services.OrderStatusService
+import org.beckn.one.sandbox.bap.client.order.status.singleton.Order.Companion.order_object
 import org.beckn.one.sandbox.bap.client.shared.dtos.OrderStatusDto
 import org.beckn.one.sandbox.bap.client.shared.errors.bpp.BppError
 import org.beckn.one.sandbox.bap.client.shared.services.LoggingService
@@ -73,6 +74,7 @@ class OrderStatusController @Autowired constructor(
     if(!orderStatusRequest.isNullOrEmpty()){
       for( data: OrderStatusDto in orderStatusRequest) {
         val context = getContext(data.context.transactionId)
+        order_object = data.orderObject
         orderStatusService.getOrderStatus(
           context = context,
           request = data
